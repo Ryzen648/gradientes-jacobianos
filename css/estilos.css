@@ -1,0 +1,57 @@
+/* Estilos de la calculadora. Los colores son variables para el modo claro/oscuro. */
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --text: #1c2330; --muted: #5d6778;
+  --border: #d9dee6; --accent: #2456c9; --accent-text: #ffffff;
+  --ok-bg: #e2f5e8; --ok: #17663a; --bad-bg: #fde7e7; --bad: #a12626;
+  --code-bg: #f0f2f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151b; --card: #1b2029; --text: #e7eaf0; --muted: #9aa5b6;
+    --border: #303746; --accent: #7aa2ff; --accent-text: #0e1320;
+    --ok-bg: #173524; --ok: #7fdca2; --bad-bg: #421c1c; --bad: #ff9c9c;
+    --code-bg: #232a36;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 860px; margin: 0 auto; padding: 32px 16px 56px; }
+h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 8px; }
+h2 { font-size: 1.05rem; margin: 0 0 10px; }
+p.lead { color: var(--muted); margin: 0 0 24px; }
+a { color: var(--accent); }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 20px; margin-bottom: 16px;
+}
+label { display: block; font-weight: 600; margin: 14px 0 4px; }
+label:first-child { margin-top: 0; }
+.hint { font-weight: 400; color: var(--muted); font-size: .88rem; }
+input, textarea {
+  width: 100%; padding: 9px 11px; border: 1px solid var(--border);
+  border-radius: 7px; background: var(--bg); color: var(--text);
+  font: 15px/1.5 ui-monospace, Consolas, "SF Mono", Menlo, monospace;
+}
+textarea { resize: vertical; min-height: 84px; }
+input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; }
+button {
+  font: inherit; cursor: pointer; border-radius: 7px; padding: 8px 14px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+}
+button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+button.chip { font-size: .88rem; padding: 5px 11px; border-radius: 999px; }
+.math { overflow-x: auto; padding: 6px 0 10px; }
+.badge { display: inline-block; padding: 5px 12px; border-radius: 999px; font-weight: 600; }
+.badge.ok { background: var(--ok-bg); color: var(--ok); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); }
+.error { background: var(--bad-bg); color: var(--bad); padding: 10px 14px; border-radius: 7px; }
+.muted { color: var(--muted); font-size: .92rem; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+details { margin-top: 4px; }
+summary { cursor: pointer; font-weight: 600; }
+footer { color: var(--muted); font-size: .9rem; margin-top: 24px; }
+[hidden] { display: none; }
