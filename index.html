@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de gradientes y jacobianos</title>
+<meta name="description" content="Calcula gradientes y jacobianos de forma simbólica y verifícalos con diferencias finitas.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1c2330; --muted: #5d6778;
+    --border: #d9dee6; --accent: #2456c9; --accent-text: #ffffff;
+    --ok-bg: #e2f5e8; --ok: #17663a; --bad-bg: #fde7e7; --bad: #a12626;
+    --code-bg: #f0f2f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1b2029; --text: #e7eaf0; --muted: #9aa5b6;
+      --border: #303746; --accent: #7aa2ff; --accent-text: #0e1320;
+      --ok-bg: #173524; --ok: #7fdca2; --bad-bg: #421c1c; --bad: #ff9c9c;
+      --code-bg: #232a36;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 56px; }
+  h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  p.lead { color: var(--muted); margin: 0 0 24px; }
+  a { color: var(--accent); }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; margin-bottom: 16px;
+  }
+  label { display: block; font-weight: 600; margin: 14px 0 4px; }
+  label:first-child { margin-top: 0; }
+  .hint { font-weight: 400; color: var(--muted); font-size: .88rem; }
+  input, textarea {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--border);
+    border-radius: 7px; background: var(--bg); color: var(--text);
+    font: 15px/1.5 ui-monospace, Consolas, "SF Mono", Menlo, monospace;
+  }
+  textarea { resize: vertical; min-height: 84px; }
+  input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 7px; padding: 8px 14px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+  }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+  button.chip { font-size: .88rem; padding: 5px 11px; border-radius: 999px; }
+  .math { overflow-x: auto; padding: 6px 0 10px; }
+  .badge { display: inline-block; padding: 5px 12px; border-radius: 999px; font-weight: 600; }
+  .badge.ok { background: var(--ok-bg); color: var(--ok); }
+  .badge.bad { background: var(--bad-bg); color: var(--bad); }
+  .error { background: var(--bad-bg); color: var(--bad); padding: 10px 14px; border-radius: 7px; }
+  .muted { color: var(--muted); font-size: .92rem; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  details { margin-top: 4px; }
+  summary { cursor: pointer; font-weight: 600; }
+  footer { color: var(--muted); font-size: .9rem; margin-top: 24px; }
+  [hidden] { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Calculadora de gradientes y jacobianos</h1>
+  <p class="lead">Deriva simbólicamente, evalúa en un punto y comprueba el resultado con diferencias finitas centradas.</p>
+
+  <section class="card">
+    <label for="vars">Variables <span class="hint">separadas por comas</span></label>
+    <input id="vars" autocomplete="off" spellcheck="false">
+
+    <label for="funcs">Funciones <span class="hint">una por línea: una sola da el gradiente, varias dan el jacobiano</span></label>
+    <textarea id="funcs" rows="3" autocomplete="off" spellcheck="false"></textarea>
+
+    <label for="point">Punto <span class="hint">un valor por variable, en el mismo orden; admite expresiones como <code>pi/4</code></span></label>
+    <input id="point" autocomplete="off" spellcheck="false">
+
+    <div class="row">
+      <button class="primary" id="calc">Calcular</button>
+      <span class="muted">Ejemplos:</span>
+      <span id="examples" class="row" style="margin-top:0"></span>
+    </div>
+
+    <details>
+      <summary class="muted">Sintaxis admitida</summary>
+      <p class="muted">
+        Operadores <code>+ - * / ^</code> y paréntesis. Funciones: <code>sin cos tan asin acos atan sinh cosh tanh
+        exp log sqrt abs</code> (<code>log</code> es el logaritmo natural). Constantes: <code>pi</code>, <code>e</code>.
+        La multiplicación se puede escribir como <code>x*y</code> o <code>2x</code>.
+      </p>
+    </details>
+  </section>
+
+  <div id="error" class="error" role="alert" hidden></div>
+
+  <section id="results" hidden>
+    <div class="card">
+      <h2 id="symTitle"></h2>
+      <div id="sym" class="math"></div>
+    </div>
+    <div class="card">
+      <h2 id="valTitle"></h2>
+      <div id="val" class="math"></div>
+      <div id="extra" class="math"></div>
+    </div>
+    <div class="card">
+      <h2>Verificación numérica</h2>
+      <div id="num" class="math"></div>
+      <p><span id="badge" class="badge"></span></p>
+      <p class="muted">
+        Cada entrada se aproxima con
+        <span id="fdFormula"></span> usando <code>h = 1e-6</code>.
+        Si la derivada simbólica es correcta, el error relativo es muy pequeño (tolerancia <code>1e-6</code>).
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Ejercicios resueltos y código en
+    <a href="https://github.com/Ryzen648/gradientes-jacobianos">el repositorio de GitHub</a>.
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var H = 1e-6, TOL = 1e-6;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var EXAMPLES = [
+    { name: "Gradiente en R²", vars: "x, y", funcs: "x^2*y + sin(x*y)", point: "1.3, -0.7" },
+    { name: "Polares", vars: "r, t", funcs: "r*cos(t)\nr*sin(t)", point: "2, pi/6" },
+    { name: "R³ → R²", vars: "x, y, z", funcs: "x*y*z\nx^2 + exp(y)*sin(z)", point: "0.5, -1.2, 2" },
+    { name: "Esféricas", vars: "p, t, f", funcs: "p*sin(f)*cos(t)\np*sin(f)*sin(t)\np*cos(f)", point: "2, 0.8, 1.1" },
+    { name: "Log-sum-exp", vars: "a, b, c", funcs: "log(exp(a) + exp(b) + exp(c))", point: "0.2, -1, 1.5" }
+  ];
+
+  function tex(el, src, display) {
+    katex.render(src, el, { displayMode: display !== false, throwOnError: false });
+  }
+
+  function fmt(v) {
+    if (!isFinite(v)) return "\\text{" + String(v) + "}";
+    if (v === 0) return "0";
+    var a = Math.abs(v);
+    if (a >= 1e6 || a < 1e-4) {
+      var p = v.toExponential(3).split("e");
+      return p[0] + "\\times 10^{" + Number(p[1]) + "}";
+    }
+    return String(Number(v.toPrecision(6)));
+  }
+
+  function matrixTex(rows, cell) {
+    return "\\begin{pmatrix}" + rows.map(function (r) {
+      return r.map(cell).join(" & ");
+    }).join(" \\\\[4pt] ") + "\\end{pmatrix}";
+  }
+
+  function splitList(s) {
+    return s.split(",").map(function (t) { return t.trim(); }).filter(function (t) { return t !== ""; });
+  }
+
+  function toNumber(v, what) {
+    if (typeof v !== "number" || !isFinite(v)) {
+      throw new Error(what + " no da un número real finito en ese punto.");
+    }
+    return v;
+  }
+
+  function calcular() {
+    var vars = splitList($("vars").value);
+    if (!vars.length) throw new Error("Escribe al menos una variable.");
+    vars.forEach(function (v) {
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(v)) throw new Error("Nombre de variable no válido: «" + v + "».");
+      if (v === "pi" || v === "e" || v === "i") throw new Error("«" + v + "» es una constante; usa otro nombre de variable.");
+    });
+    if (new Set(vars).size !== vars.length) throw new Error("Hay variables repetidas.");
+
+    var lines = $("funcs").value.split("\n").map(function (l) { return l.trim(); }).filter(function (l) { return l !== ""; });
+    if (!lines.length) throw new Error("Escribe al menos una función.");
+
+    var pointTxt = splitList($("point").value);
+    if (pointTxt.length !== vars.length) {
+      throw new Error("El punto tiene " + pointTxt.length + " valores, pero hay " + vars.length + " variables.");
+    }
+    var x0 = pointTxt.map(function (t, i) {
+      var v;
+      try { v = math.evaluate(t); } catch (err) { throw new Error("No entiendo el valor «" + t + "» del punto."); }
+      return toNumber(v, "El valor de " + vars[i]);
+    });
+
+    var nodes = lines.map(function (l, i) {
+      var n;
+      try { n = math.parse(l); } catch (err) {
+        throw new Error("No entiendo la función " + (i + 1) + " («" + l + "»): " + err.message);
+      }
+      n.traverse(function (node, path) {
+        if (node.isSymbolNode && path !== "fn" && vars.indexOf(node.name) < 0 &&
+            node.name !== "pi" && node.name !== "e") {
+          throw new Error("En la función " + (i + 1) + " aparece «" + node.name + "», que no está en la lista de variables.");
+        }
+      });
+      return n;
+    });
+
+    function scopeAt(x) {
+      var s = {};
+      vars.forEach(function (v, j) { s[v] = x[j]; });
+      return s;
+    }
+
+    // Jacobiano simbólico y su valor en el punto
+    var Jsym = nodes.map(function (n, i) {
+      return vars.map(function (v) {
+        try { return math.simplify(math.derivative(n, v)); } catch (err) {
+          throw new Error("No puedo derivar simbólicamente la función " + (i + 1) + ": " + err.message);
+        }
+      });
+    });
+    var s0 = scopeAt(x0);
+    var Jval = Jsym.map(function (row, i) {
+      return row.map(function (n, j) {
+        return toNumber(n.evaluate(s0), "∂f" + (i + 1) + "/∂" + vars[j]);
+      });
+    });
+
+    // Jacobiano numérico por diferencias centradas
+    var compiled = nodes.map(function (n) { return n.compile(); });
+    var Jnum = compiled.map(function (c, i) {
+      return vars.map(function (v, j) {
+        var xp = x0.slice(), xm = x0.slice();
+        xp[j] += H; xm[j] -= H;
+        var fp = toNumber(c.evaluate(scopeAt(xp)), "La función " + (i + 1));
+        var fm = toNumber(c.evaluate(scopeAt(xm)), "La función " + (i + 1));
+        return (fp - fm) / (2 * H);
+      });
+    });
+
+    var diff = 0, scale = 1;
+    Jval.forEach(function (row, i) {
+      row.forEach(function (a, j) {
+        var b = Jnum[i][j];
+        diff = Math.max(diff, Math.abs(a - b));
+        scale = Math.max(scale, Math.abs(a), Math.abs(b));
+      });
+    });
+
+    return { vars: vars, nodes: nodes, x0: x0, Jsym: Jsym, Jval: Jval, Jnum: Jnum, err: diff / scale };
+  }
+
+  function mostrar(r) {
+    var m = r.nodes.length, n = r.vars.length;
+    var esGrad = m === 1;
+    var nombre = esGrad ? "\\nabla f" : "J_F";
+    var nombreNum = esGrad ? "\\nabla f_{\\text{num}}" : "J_{F,\\,\\text{num}}";
+    var varTex = function (v) {
+      return v.length === 1 ? "{" + v + "}" : "{\\mathit{" + v.replace(/_/g, "\\_") + "}}";
+    };
+    var handler = function (node) {
+      if (node.isSymbolNode && r.vars.indexOf(node.name) >= 0) return varTex(node.name);
+    };
+    var args = "(" + r.vars.map(varTex).join(", ") + ")";
+    var punto = "(" + r.x0.map(fmt).join(",\\ ") + ")";
+    var nodeTex = function (nd) { return nd.toTex({ parenthesis: "auto", handler: handler }); };
+
+    $("symTitle").textContent = esGrad ? "Gradiente simbólico" : "Jacobiano simbólico (" + m + " × " + n + ")";
+    $("valTitle").textContent = esGrad ? "Gradiente en el punto" : "Jacobiano en el punto";
+
+    var def = esGrad
+      ? "f" + args + " = " + nodeTex(r.nodes[0])
+      : "F" + args + " = " + matrixTex(r.nodes.map(function (nd) { return [nd]; }), nodeTex);
+    tex($("sym"), def + " \\\\[12pt] " + nombre + args + " = " + matrixTex(r.Jsym, nodeTex));
+    tex($("val"), nombre + punto + " = " + matrixTex(r.Jval, fmt));
+
+    var extra = "";
+    if (esGrad) {
+      var norma = Math.sqrt(r.Jval[0].reduce(function (s, v) { return s + v * v; }, 0));
+      extra = "\\lVert \\nabla f \\rVert = " + fmt(norma);
+    } else if (m === n) {
+      extra = "\\det J_F = " + fmt(math.det(r.Jval));
+    }
+    $("extra").hidden = !extra;
+    if (extra) tex($("extra"), extra);
+
+    tex($("num"), nombreNum + punto + " = " + matrixTex(r.Jnum, fmt));
+    tex($("fdFormula"), "\\dfrac{f(x + h\\,e_j) - f(x - h\\,e_j)}{2h}", false);
+
+    var ok = r.err < TOL;
+    var badge = $("badge");
+    badge.className = "badge " + (ok ? "ok" : "bad");
+    badge.textContent = (ok ? "Coinciden" : "No coinciden") + " · error relativo = " + r.err.toExponential(2);
+
+    $("results").hidden = false;
+  }
+
+  function ejecutar() {
+    var box = $("error");
+    try {
+      box.hidden = true;
+      mostrar(calcular());
+    } catch (err) {
+      $("results").hidden = true;
+      box.textContent = err.message;
+      box.hidden = false;
+    }
+  }
+
+  function cargar(ex) {
+    $("vars").value = ex.vars;
+    $("funcs").value = ex.funcs;
+    $("point").value = ex.point;
+    ejecutar();
+  }
+
+  EXAMPLES.forEach(function (ex) {
+    var b = document.createElement("button");
+    b.className = "chip";
+    b.type = "button";
+    b.textContent = ex.name;
+    b.addEventListener("click", function () { cargar(ex); });
+    $("examples").appendChild(b);
+  });
+
+  $("calc").addEventListener("click", ejecutar);
+  ["vars", "point"].forEach(function (id) {
+    $(id).addEventListener("keydown", function (e) { if (e.key === "Enter") ejecutar(); });
+  });
+  $("funcs").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) ejecutar();
+  });
+
+  if (typeof math === "undefined" || typeof katex === "undefined") {
+    $("error").textContent = "No se pudieron cargar las librerías (math.js / KaTeX). Revisa tu conexión y recarga la página.";
+    $("error").hidden = false;
+  } else {
+    cargar(EXAMPLES[1]);
+  }
+})();
+</script>
+</body>
+</html>

@@ -6,10 +6,20 @@ se programa con NumPy y se **verifica** de dos formas independientes:
 - **simbólicamente** con SymPy, y
 - **numéricamente** con diferencias finitas centradas.
 
+## Calculadora web
+
+**https://ryzen648.github.io/gradientes-jacobianos/**
+
+Escribe las variables, una o varias funciones y un punto: la página calcula el
+gradiente o el jacobiano simbólico, lo evalúa en el punto y lo compara con
+diferencias finitas centradas. Funciona entera en el navegador
+([`index.html`](index.html), con math.js y KaTeX).
+
 ## Contenido
 
 | Archivo | Descripción |
 |---|---|
+| [`index.html`](index.html) | Calculadora web de gradientes y jacobianos (GitHub Pages) |
 | [`gradientes_jacobianos.ipynb`](gradientes_jacobianos.ipynb) | Notebook con los ejercicios, ya ejecutado |
 | [`gradcheck.py`](gradcheck.py) | `gradiente_numerico`, `jacobiano_numerico`, `verificar_gradiente`, `verificar_jacobiano` |
 | [`tests/test_gradcheck.py`](tests/test_gradcheck.py) | Tests de las herramientas de verificación |
