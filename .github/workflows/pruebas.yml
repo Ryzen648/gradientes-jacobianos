@@ -29,4 +29,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install numpy pytest
-      - run: pytest tests
+      - run: pytest ejercicios/tests

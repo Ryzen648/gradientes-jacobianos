@@ -3,10 +3,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { crearEstado } from "../../js/estado.js";
-import { t, claves, mensajeDeError } from "../../js/i18n/index.js";
-import { CODIGOS, ErrorCalculo } from "../../js/nucleo/errores.js";
-import { EJEMPLOS } from "../../js/ejemplos.js";
+import { crearEstado } from "../js/estado.js";
+import { t, claves, mensajeDeError } from "../js/i18n/index.js";
+import { CODIGOS, ErrorCalculo } from "../js/nucleo/errores.js";
+import { EJEMPLOS } from "../js/ejemplos.js";
 
 test("el estado empieza vacío y se actualiza por partes", () => {
   const estado = crearEstado();
@@ -60,7 +60,7 @@ test("mensajeDeError traduce los errores del núcleo y no oculta los inesperados
 });
 
 test("todas las claves que usa index.html existen en el diccionario", () => {
-  const html = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const usadas = [...html.matchAll(/data-i18n(?:-html)?="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(usadas.length > 10);
   const existentes = new Set(claves());

@@ -2,7 +2,7 @@ import "./preparar.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { leerVariables, leerFunciones, leerPunto, leerEntrada } from "../../js/nucleo/entrada.js";
+import { leerVariables, leerFunciones, leerPunto, leerEntrada } from "../js/nucleo/entrada.js";
 import { lanza } from "./ayuda.mjs";
 
 test("leerVariables separa por comas e ignora espacios y huecos", () => {

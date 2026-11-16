@@ -24,10 +24,8 @@ navegador, sin servidor ni paso de build, con math.js y KaTeX.
 | [`index.html`](index.html), [`css/`](css) | Página de la calculadora (GitHub Pages) |
 | [`js/nucleo/`](js/nucleo) | Lógica sin DOM: lectura de la entrada, derivación, verificación numérica y LaTeX |
 | [`js/ui/`](js/ui), [`js/estado.js`](js/estado.js), [`js/i18n/`](js/i18n) | Interfaz, modelo de estado y textos |
-| [`tests/js/`](tests/js) | Pruebas de la calculadora (`node --test`) |
-| [`gradientes_jacobianos.ipynb`](gradientes_jacobianos.ipynb) | Notebook con los ejercicios, ya ejecutado |
-| [`gradcheck.py`](gradcheck.py) | `gradiente_numerico`, `jacobiano_numerico`, `verificar_gradiente`, `verificar_jacobiano` |
-| [`tests/test_gradcheck.py`](tests/test_gradcheck.py) | Pruebas de las herramientas de verificación en Python |
+| [`tests/`](tests) | Pruebas de la calculadora (`node --test`) |
+| [`ejercicios/`](ejercicios) | Material aparte, en Python: notebook de ejercicios resueltos, `gradcheck.py` y sus pruebas. La calculadora no depende de esta carpeta |
 
 ## Desarrollo de la calculadora
 
@@ -49,7 +47,7 @@ npm run servir
 `npm run servir` abre la calculadora en `http://localhost:8765/`. Hace falta
 servirla así porque los módulos ES no cargan desde `file://`.
 
-## Ejercicios del notebook
+## Ejercicios del notebook (carpeta `ejercicios/`)
 
 | # | Función | Resultado |
 |---|---|---|
@@ -70,20 +68,22 @@ Al final hay cinco ejercicios propuestos con su solución para comprobar.
 ## Uso del notebook
 
 ```bash
-pip install -r requirements.txt
+pip install -r ejercicios/requirements.txt
 ```
 
 ```bash
-jupyter notebook gradientes_jacobianos.ipynb
+jupyter notebook ejercicios/gradientes_jacobianos.ipynb
 ```
 
 Para correr las pruebas de Python:
 
 ```bash
-pytest tests
+pytest ejercicios/tests
 ```
 
-## Verificar tus propias derivadas
+## Verificar tus propias derivadas en Python
+
+Desde la carpeta `ejercicios/`:
 
 ```python
 import numpy as np

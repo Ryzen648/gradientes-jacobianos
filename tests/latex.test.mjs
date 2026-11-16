@@ -2,9 +2,9 @@ import "./preparar.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { numeroTex, matrizTex, variableTex, nodoTex, resultadoTex } from "../../js/nucleo/latex.js";
-import { calcular } from "../../js/nucleo/calcular.js";
-import { EJEMPLOS } from "../../js/ejemplos.js";
+import { numeroTex, matrizTex, variableTex, nodoTex, resultadoTex } from "../js/nucleo/latex.js";
+import { calcular } from "../js/nucleo/calcular.js";
+import { EJEMPLOS } from "../js/ejemplos.js";
 
 test("numeroTex", () => {
   assert.equal(numeroTex(0), "0");

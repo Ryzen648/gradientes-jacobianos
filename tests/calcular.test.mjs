@@ -2,10 +2,10 @@ import "./preparar.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { calcular } from "../../js/nucleo/calcular.js";
-import { jacobianoNumerico, errorRelativo, TOLERANCIA } from "../../js/nucleo/numerico.js";
-import { leerEntrada } from "../../js/nucleo/entrada.js";
-import { EJEMPLOS, EJEMPLO_INICIAL } from "../../js/ejemplos.js";
+import { calcular } from "../js/nucleo/calcular.js";
+import { jacobianoNumerico, errorRelativo, TOLERANCIA } from "../js/nucleo/numerico.js";
+import { leerEntrada } from "../js/nucleo/entrada.js";
+import { EJEMPLOS, EJEMPLO_INICIAL } from "../js/ejemplos.js";
 import { lanza, cerca, matrizCerca } from "./ayuda.mjs";
 
 const ejemplo = (id) => EJEMPLOS.find((e) => e.id === id);
