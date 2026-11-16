@@ -1,0 +1,16 @@
+{
+  "name": "gradientes-jacobianos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Calculadora web de gradientes y jacobianos con verificación numérica",
+  "author": "Ricardo Jaico Pradinett",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/js/*.test.mjs\"",
+    "servir": "node scripts/servidor.mjs"
+  },
+  "devDependencies": {
+    "mathjs": "12.4.2"
+  }
+}
