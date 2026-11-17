@@ -10,10 +10,27 @@ se programa con NumPy y se **verifica** de dos formas independientes:
 
 **https://ryzen648.github.io/gradientes-jacobianos/**
 
-Escribe las variables, una o varias funciones y un punto: la página calcula el
-gradiente o el jacobiano simbólico, lo evalúa en el punto y lo compara con
-diferencias finitas centradas. Es una página estática: funciona entera en el
-navegador, sin servidor ni paso de build, con math.js y KaTeX.
+Escribe una o varias funciones y un punto: la página calcula el gradiente o el
+jacobiano simbólico, lo evalúa en el punto y lo compara con diferencias
+finitas centradas. Es una página estática: funciona entera en el navegador,
+sin servidor ni paso de build.
+
+- **Editor visual o de código.** Las funciones se escriben en un editor
+  matemático (MathLive, con teclado en pantalla en el móvil) o, en modo
+  *Código*, como texto: `x^2*y + sin(x*y)`.
+- **Variables automáticas.** Se detectan al escribir y cada una recibe su
+  campo de valor, que admite expresiones como `pi/4`.
+- **Una función da el gradiente; varias, el jacobiano.** Se añaden y quitan
+  con «+ Agregar función» y ✕, y la vista previa muestra lo que se va a derivar.
+- **Alias.** `ln`, `e^x`, `**`, `sec`, `cot`, `|x|`, `sen`, `tg`, `arctan`…
+- **Errores que dicen qué hacer.** Paréntesis sin cerrar, funciones mal
+  escritas (con sugerencia) o puntos donde la función no es derivable, como
+  `abs(x)` en 0.
+- **Ejemplos** de cálculo y de aprendizaje automático (sigmoide, softmax, capa
+  densa con tanh).
+
+Librerías, todas desde CDN: math.js (derivación simbólica), KaTeX (fórmulas) y
+MathLive (editor visual, con carga diferida para que la página abra rápido).
 
 [![Pruebas](https://github.com/Ryzen648/gradientes-jacobianos/actions/workflows/pruebas.yml/badge.svg)](https://github.com/Ryzen648/gradientes-jacobianos/actions/workflows/pruebas.yml)
 
