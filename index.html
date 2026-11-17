@@ -67,25 +67,55 @@
   <div id="error" class="error" role="alert" hidden></div>
 
   <section id="results" hidden>
+    <div class="barra-resultados">
+      <label for="precision" data-i18n="resultado.precision"></label>
+      <select id="precision"></select>
+    </div>
+
     <div class="card">
-      <h2 id="symTitle"></h2>
+      <div class="cabecera">
+        <h2 id="symTitle"></h2>
+        <div class="acciones">
+          <button type="button" class="copiar" data-copia="simbolico" data-i18n="resultado.copiarLatex"></button>
+        </div>
+      </div>
       <div id="sym" class="math"></div>
     </div>
+
     <div class="card">
-      <h2 id="valTitle"></h2>
+      <div class="cabecera">
+        <h2 id="valTitle"></h2>
+        <div class="acciones">
+          <button type="button" class="copiar" data-copia="valor" data-i18n="resultado.copiarLatex"></button>
+          <button type="button" class="copiar" data-copia="valores" data-i18n="resultado.copiarValores"></button>
+        </div>
+      </div>
       <div id="val" class="math"></div>
       <div id="extra" class="math"></div>
     </div>
+
     <div class="card">
-      <h2 data-i18n="resultado.verificacion"></h2>
+      <div class="cabecera">
+        <h2 data-i18n="resultado.verificacion"></h2>
+        <div class="acciones">
+          <button type="button" class="copiar" data-copia="numericos" data-i18n="resultado.copiarValores"></button>
+        </div>
+      </div>
       <div id="num" class="math"></div>
+      <div id="dif" class="math"></div>
       <p><span id="badge" class="badge"></span></p>
       <p class="muted">
         <span data-i18n="resultado.explicacion.antes"></span>
         <span id="fdFormula"></span>
-        <span data-i18n-html="resultado.explicacion.despues"></span>
+        <span data-i18n="resultado.explicacion.paso"></span>
+        <span id="pasoFormula"></span><span data-i18n="resultado.explicacion.criterio"></span>
       </p>
+      <div id="criterio" class="math"></div>
+      <p class="muted" data-i18n="resultado.explicacion.despues"></p>
     </div>
+
+    <!-- Aviso para lectores de pantalla al copiar. -->
+    <p id="avisoCopia" class="solo-lectores" role="status"></p>
   </section>
 
   <footer data-i18n-html="pie.texto"></footer>

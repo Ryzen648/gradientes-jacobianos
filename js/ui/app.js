@@ -3,11 +3,13 @@
 
 import { mathDisponible } from "../lib/mathjs.js";
 import { calcular } from "../nucleo/calcular.js";
-import { analizarEntrada, analizarFuncion, variablesDe } from "../nucleo/entrada.js";
+import { analizarEntrada, analizarFuncion } from "../nucleo/entrada.js";
 import { latexACodigo } from "../nucleo/latex-a-codigo.js";
 import {
-  resultadoTex, definicionTex, nodoTex, variableTex, FORMULA_DIFERENCIA_CENTRADA,
+  resultadoTex, definicionTex, nodoTex, variableTex,
+  FORMULA_DIFERENCIA_CENTRADA, CRITERIO_TEX, PASO_TEX, PRECISIONES,
 } from "../nucleo/latex.js";
+import { copiarAlPortapapeles } from "./portapapeles.js";
 import { crearEstado } from "../estado.js";
 import { EJEMPLOS, EJEMPLO_INICIAL, GRUPOS } from "../ejemplos.js";
 import { t, mensajeDeError, aplicarTextos } from "../i18n/index.js";
@@ -25,6 +27,8 @@ let filas = [{ latex: null, error: null }];
 let editorListo = false;        // MathLive ya está cargado
 let variablesPintadas = null;   // variables que tienen campo de valor ahora mismo
 let temporizador = null;
+let ultimoResultado = null;     // para repintar al cambiar la precisión, sin recalcular
+let textosParaCopiar = {};      // lo que copia cada botón: LaTeX o valores
 
 const filaLimpia = () => ({ latex: null, error: null });
 const enVisual = () => estado.obtener().modo === "visual" && editorListo;
@@ -52,7 +56,7 @@ function fijarFuncion(i, codigo) {
 function codigoALatex(codigo) {
   if (codigo.trim() === "") return "";
   const nodo = analizarFuncion(codigo);
-  return nodoTex(nodo, [...variablesDe(nodo)]);
+  return nodoTex(nodo);
 }
 
 function crearCampoCodigo(i, codigo) {
@@ -297,11 +301,14 @@ async function cambiarModo(modo) {
 // --- Resultados --------------------------------------------------------------------
 
 function mostrarResultado(r) {
+  ultimoResultado = r;
   const tipo = r.esGradiente ? "gradiente" : "jacobiano";
   $("symTitle").textContent = t(`resultado.${tipo}.simbolico`, { filas: r.nodos.length, columnas: r.vars.length });
   $("valTitle").textContent = t(`resultado.${tipo}.valor`);
 
-  const tex = resultadoTex(r);
+  const tex = resultadoTex(r, { decimales: estado.obtener().precision });
+  textosParaCopiar = tex.copia;
+  pintarTex($("dif"), tex.diferencia);
   pintarTex($("sym"), tex.simbolico);
   pintarTex($("val"), tex.valor);
   $("extra").hidden = !tex.extra;
@@ -356,6 +363,30 @@ function cargarEjemplo(ejemplo) {
   ejecutar();
 }
 
+// --- Copiar y precisión ----------------------------------------------------------------
+
+async function copiar(boton) {
+  const ok = await copiarAlPortapapeles(textosParaCopiar[boton.dataset.copia] ?? "");
+  const original = t(boton.dataset.i18n);
+  boton.textContent = t(ok ? "resultado.copiado" : "resultado.noCopiado");
+  $("avisoCopia").textContent = t(ok ? "resultado.copiado.aviso" : "resultado.noCopiado.aviso");
+  setTimeout(() => { boton.textContent = original; }, 1600);
+}
+
+function pintarSelectorDePrecision() {
+  const selector = $("precision");
+  for (const n of PRECISIONES) {
+    const opcion = crear("option", null, t("resultado.precision.opcion", { n }));
+    opcion.value = String(n);
+    selector.append(opcion);
+  }
+  selector.value = String(estado.obtener().precision);
+  selector.addEventListener("change", () => {
+    estado.actualizar({ precision: Number(selector.value) });
+    if (ultimoResultado) mostrarResultado(ultimoResultado);
+  });
+}
+
 // --- Arranque ------------------------------------------------------------------------
 
 function pintarEjemplos() {
@@ -397,12 +428,16 @@ function iniciar() {
     programarRefresco();
   });
   $("orden").addEventListener("keydown", (e) => { if (e.key === "Enter") ejecutar(); });
+  document.querySelectorAll(".copiar").forEach((boton) => boton.addEventListener("click", () => copiar(boton)));
+  pintarSelectorDePrecision();
 
   if (!mathDisponible() || typeof globalThis.katex === "undefined") {
     mostrarError(t("error.librerias"));
     return;
   }
   pintarTex($("fdFormula"), FORMULA_DIFERENCIA_CENTRADA, false);
+  pintarTex($("pasoFormula"), PASO_TEX, false);
+  pintarTex($("criterio"), CRITERIO_TEX);
   pintarModo();
   cargarEjemplo(EJEMPLOS.find((e) => e.id === EJEMPLO_INICIAL));
 

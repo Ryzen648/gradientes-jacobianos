@@ -59,12 +59,23 @@ export default {
   "resultado.gradiente.valor": "Gradiente en el punto",
   "resultado.jacobiano.valor": "Jacobiano en el punto",
   "resultado.verificacion": "Verificación numérica",
-  "resultado.coinciden": "Coinciden · error relativo = {error}",
-  "resultado.noCoinciden": "No coinciden · error relativo = {error}",
+  "resultado.coinciden": "✓ Coincide · error relativo = {error}",
+  "resultado.noCoinciden": "✗ No coincide · error relativo = {error}",
   "resultado.explicacion.antes": "Cada entrada se aproxima con",
+  "resultado.explicacion.paso": "usando",
+  "resultado.explicacion.criterio": ". El resultado se da por bueno si el error relativo cumple:",
   "resultado.explicacion.despues":
-    "usando <code>h = 1e-6</code>. Si la derivada simbólica es correcta, el error relativo es muy pequeño " +
-    "(tolerancia <code>1e-6</code>).",
+    "Con ese paso, una diferencia finita se desvía de la derivada exacta del orden de 10⁻¹⁰: una derivada " +
+    "correcta queda muy por debajo de la tolerancia y una incorrecta, muy por encima. Dividir entre el tamaño " +
+    "de las entradas hace que el criterio valga igual para valores grandes y pequeños.",
+  "resultado.precision": "Decimales",
+  "resultado.precision.opcion": "{n} decimales",
+  "resultado.copiarLatex": "Copiar LaTeX",
+  "resultado.copiarValores": "Copiar valores",
+  "resultado.copiado": "Copiado ✓",
+  "resultado.copiado.aviso": "Copiado al portapapeles.",
+  "resultado.noCopiado": "No se pudo copiar",
+  "resultado.noCopiado.aviso": "El navegador no permitió copiar. Selecciona el resultado y cópialo a mano.",
 
   "pie.texto":
     "Hecho por Ricardo Jaico Pradinett. Código y ejercicios resueltos en " +
