@@ -1,6 +1,8 @@
 // Generación de LaTeX a partir de un resultado. No toca el DOM: solo
 // devuelve cadenas, así se puede probar sin navegador.
 
+import { esGriega } from "./lenguaje.js";
+
 /** Número legible: 6 cifras significativas, notación científica en los extremos. */
 export function numeroTex(v) {
   if (!Number.isFinite(v)) return `\\text{${String(v)}}`;
@@ -19,14 +21,20 @@ export function matrizTex(filas, celda) {
 }
 
 /**
- * Nombre de variable en LaTeX. Va siempre entre llaves: math.js pega el
- * nombre justo después de `\cdot`, y sin llaves `\cdot` + `y` se leería como
- * el comando inexistente `\cdoty`.
+ * Nombre de variable en LaTeX: `x` -> x, `x1` -> x₁, `theta` -> θ,
+ * `theta2` -> θ₂ y cualquier otro nombre largo en cursiva.
+ *
+ * Va siempre entre llaves: math.js pega el nombre justo después de `\cdot`,
+ * y sin llaves `\cdot` + `y` se leería como el comando inexistente `\cdoty`.
+ * Es la inversa de lo que lee `latex-a-codigo.js`.
  */
 export function variableTex(nombre) {
-  return nombre.length === 1
-    ? `{${nombre}}`
-    : `{\\mathit{${nombre.replace(/_/g, "\\_")}}}`;
+  const m = /^([A-Za-z]+?)(\d+)$/.exec(nombre);
+  const raiz = m ? m[1] : nombre;
+  const subindice = m ? `_{${m[2]}}` : "";
+  if (esGriega(raiz)) return `{\\${raiz}${subindice}}`;
+  if (raiz.length === 1) return `{${raiz}${subindice}}`;
+  return `{\\mathit{${nombre.replace(/_/g, "\\_")}}}`;
 }
 
 /** Árbol de math.js -> LaTeX, con las variables del usuario en cursiva. */
@@ -37,6 +45,15 @@ export function nodoTex(nodo, vars) {
   });
 }
 
+/** Vista previa de lo que se va a derivar: f(x, y) = … o F(x, y) = (…). */
+export function definicionTex(nodos, vars) {
+  const args = `(${vars.map(variableTex).join(", ")})`;
+  const tex = (nodo) => nodoTex(nodo, vars);
+  return nodos.length === 1
+    ? `f${args} = ${tex(nodos[0])}`
+    : `F${args} = ${matrizTex(nodos.map((n) => [n]), tex)}`;
+}
+
 /** Todas las fórmulas que muestra la interfaz para un resultado de `calcular`. */
 export function resultadoTex(r) {
   const nombre = r.esGradiente ? "\\nabla f" : "J_F";
@@ -44,10 +61,7 @@ export function resultadoTex(r) {
   const args = `(${r.vars.map(variableTex).join(", ")})`;
   const punto = `(${r.x0.map(numeroTex).join(",\\ ")})`;
   const tex = (nodo) => nodoTex(nodo, r.vars);
-
-  const definicion = r.esGradiente
-    ? `f${args} = ${tex(r.nodos[0])}`
-    : `F${args} = ${matrizTex(r.nodos.map((n) => [n]), tex)}`;
+  const definicion = definicionTex(r.nodos, r.vars);
 
   let extra = null;
   if (r.extra?.tipo === "norma") extra = `\\lVert \\nabla f \\rVert = ${numeroTex(r.extra.valor)}`;

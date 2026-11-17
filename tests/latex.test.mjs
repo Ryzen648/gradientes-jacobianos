@@ -2,7 +2,8 @@ import "./preparar.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { numeroTex, matrizTex, variableTex, nodoTex, resultadoTex } from "../js/nucleo/latex.js";
+import { numeroTex, matrizTex, variableTex, nodoTex, resultadoTex, definicionTex } from "../js/nucleo/latex.js";
+import { analizarFuncion } from "../js/nucleo/entrada.js";
 import { calcular } from "../js/nucleo/calcular.js";
 import { EJEMPLOS } from "../js/ejemplos.js";
 
@@ -25,10 +26,23 @@ test("matrizTex", () => {
   );
 });
 
-test("variableTex protege con llaves y escapa guiones bajos", () => {
+test("variableTex: letras, subíndices, griegas y nombres largos", () => {
   assert.equal(variableTex("x"), "{x}");
-  assert.equal(variableTex("x1"), "{\\mathit{x1}}");
-  assert.equal(variableTex("theta_2"), "{\\mathit{theta\\_2}}");
+  assert.equal(variableTex("x1"), "{x_{1}}");
+  assert.equal(variableTex("x12"), "{x_{12}}");
+  assert.equal(variableTex("theta"), "{\\theta}");
+  assert.equal(variableTex("phi2"), "{\\phi_{2}}");
+  assert.equal(variableTex("peso"), "{\\mathit{peso}}");
+  assert.equal(variableTex("peso_2"), "{\\mathit{peso\\_2}}");
+});
+
+test("definicionTex: f para una función, F en columna para varias", () => {
+  const n = (t) => analizarFuncion(t);
+  assert.equal(definicionTex([n("x*y")], ["x", "y"]), "f({x}, {y}) = {x}\\cdot{y}");
+  assert.equal(
+    definicionTex([n("x1"), n("theta")], ["theta", "x1"]),
+    "F({\\theta}, {x_{1}}) = \\begin{pmatrix}{x_{1}} \\\\[4pt] {\\theta}\\end{pmatrix}",
+  );
 });
 
 test("nodoTex no pega el nombre de la variable a \\cdot", () => {
