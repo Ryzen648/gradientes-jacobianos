@@ -16,8 +16,9 @@ export function jacobianoSimbolico(nodos, vars) {
   return nodos.map((nodo, i) => vars.map((v) => {
     try {
       return math.simplify(math.derivative(nodo, v));
-    } catch (err) {
-      throw new ErrorCalculo("noDerivable", { indice: i + 1, detalle: err.message });
+    } catch {
+      // No debería ocurrir: `entrada.js` solo deja pasar funciones derivables.
+      throw new ErrorCalculo("noDerivable", { indice: i + 1 });
     }
   }));
 }

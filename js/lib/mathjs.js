@@ -1,7 +1,7 @@
 // Punto único de acceso a math.js.
 //
 // En el navegador math.js se carga desde el CDN como global (`window.math`);
-// en las pruebas de Node, `tests/js/preparar.mjs` asigna el paquete de npm a
+// en las pruebas de Node, `tests/preparar.mjs` asigna el paquete de npm a
 // `globalThis.math` antes de importar el núcleo. Así el núcleo no necesita
 // ni un paso de build ni un import map.
 //
