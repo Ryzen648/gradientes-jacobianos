@@ -13,27 +13,40 @@ const leer = (ruta) => readFileSync(new URL(ruta, import.meta.url), "utf8");
 // --- Estado ------------------------------------------------------------------------
 
 test("el estado empieza con una función vacía, en modo visual", () => {
-  assert.deepEqual(crearEstado().obtener(), { funciones: [""], valores: {}, orden: "", modo: "visual" });
+  assert.deepEqual(crearEstado().obtener(), { funciones: [""], valores: {}, orden: "", modo: "visual", precision: 6 });
 });
 
 test("el estado se actualiza por partes", () => {
   const estado = crearEstado();
   estado.actualizar({ funciones: ["x*y"], valores: { x: "1" } });
   estado.actualizar({ orden: "y, x", modo: "codigo" });
-  assert.deepEqual(estado.obtener(), { funciones: ["x*y"], valores: { x: "1" }, orden: "y, x", modo: "codigo" });
+  estado.actualizar({ precision: 10 });
+  assert.deepEqual(estado.obtener(), { funciones: ["x*y"], valores: { x: "1" }, orden: "y, x", modo: "codigo", precision: 10 });
 });
 
 test("el estado ignora campos ajenos, corrige valores no válidos y no se puede alterar desde fuera", () => {
   const estado = crearEstado();
   estado.actualizar({ id: "polares", grupo: "calculo", funciones: ["r"], valores: { r: 2 }, modo: "otro" });
   const e = estado.obtener();
-  assert.deepEqual(Object.keys(e).sort(), ["funciones", "modo", "orden", "valores"]);
+  assert.deepEqual(Object.keys(e).sort(), ["funciones", "modo", "orden", "precision", "valores"]);
   assert.deepEqual(e.valores, { r: "2" });
   assert.equal(e.modo, "visual");
   e.funciones.push("intruso");
   e.valores.z = "9";
   assert.deepEqual(estado.obtener().funciones, ["r"]);
   assert.deepEqual(estado.obtener().valores, { r: "2" });
+});
+
+test("la precisión solo admite 4, 6 o 10 decimales", () => {
+  const estado = crearEstado();
+  for (const p of [4, 6, 10, "10"]) {
+    estado.actualizar({ precision: p });
+    assert.equal(estado.obtener().precision, Number(p));
+  }
+  for (const p of [5, 0, "muchos", null]) {
+    estado.actualizar({ precision: p });
+    assert.equal(estado.obtener().precision, 6);
+  }
 });
 
 test("el estado siempre conserva al menos una fila de función", () => {

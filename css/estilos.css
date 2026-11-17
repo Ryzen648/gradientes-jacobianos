@@ -118,3 +118,20 @@ math-field::part(menu-toggle) { display: none; }
   math-field { font-size: 1rem; }
   .valor input { width: 6.5rem; }
 }
+
+/* --- Fase 2: resultados ------------------------------------------------- */
+.barra-resultados { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 10px; }
+.barra-resultados label { margin: 0; font-weight: 400; color: var(--muted); font-size: .92rem; }
+select {
+  font: inherit; font-size: .92rem; min-height: 36px; padding: 4px 8px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+}
+select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 6px; }
+button.copiar { font-size: .85rem; padding: 5px 10px; min-height: 36px; color: var(--muted); }
+button.copiar:hover { color: var(--text); border-color: var(--accent); }
+#results .cabecera { margin-bottom: 6px; }
+.solo-lectores {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}

@@ -28,6 +28,11 @@ sin servidor ni paso de build.
   `abs(x)` en 0.
 - **Ejemplos** de cálculo y de aprendizaje automático (sigmoide, softmax, capa
   densa con tanh).
+- **Resultados legibles.** La salida se escribe como a mano (`2x`, `y e^{xy}`,
+  una sola fracción) y cada resultado se puede copiar como LaTeX o como lista
+  de valores para pegar en código.
+- **Verificación a la vista.** Se muestra ‖J − J_num‖, el error relativo y el
+  criterio de tolerancia, y se puede elegir entre 4, 6 o 10 decimales.
 
 Librerías, todas desde CDN: math.js (derivación simbólica), KaTeX (fórmulas) y
 MathLive (editor visual, con carga diferida para que la página abra rápido).
