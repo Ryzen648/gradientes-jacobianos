@@ -11,6 +11,8 @@
 <!-- `defer`: no bloquean el pintado y se ejecutan, en este orden, antes del módulo. -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<!-- El editor visual (MathLive) pesa más y no se carga aquí: lo pide js/ui/editor-visual.js
+     después de pintar la página, para que abra rápido en móvil. -->
 <script type="module" src="js/ui/app.js"></script>
 </head>
 <body>
@@ -23,24 +25,41 @@
   <h1 data-i18n="pagina.titulo">Calculadora de gradientes y jacobianos</h1>
   <p class="lead" data-i18n="pagina.entradilla">Deriva simbólicamente, evalúa en un punto y comprueba el resultado con diferencias finitas centradas.</p>
 
-  <section class="card">
-    <label for="vars"><span data-i18n="entrada.variables"></span> <span class="hint" data-i18n="entrada.variables.ayuda"></span></label>
-    <input id="vars" autocomplete="off" spellcheck="false">
+  <section class="card" aria-labelledby="tituloFunciones">
+    <div class="cabecera">
+      <h2 id="tituloFunciones" data-i18n="entrada.funciones"></h2>
+      <div class="modo" role="group" data-i18n-aria-label="entrada.modo">
+        <button type="button" id="modoVisual" data-i18n="entrada.modo.visual" aria-pressed="true"></button>
+        <button type="button" id="modoCodigo" data-i18n="entrada.modo.codigo" aria-pressed="false"></button>
+      </div>
+    </div>
+    <p class="hint" data-i18n="entrada.funciones.ayuda"></p>
+    <p id="avisoModo" class="aviso" role="status" hidden></p>
 
-    <label for="funcs"><span data-i18n="entrada.funciones"></span> <span class="hint" data-i18n="entrada.funciones.ayuda"></span></label>
-    <textarea id="funcs" rows="3" autocomplete="off" spellcheck="false"></textarea>
+    <ol id="funciones" class="funciones"></ol>
+    <button type="button" id="agregar" class="secundario" data-i18n="entrada.funcion.agregar"></button>
 
-    <label for="point"><span data-i18n="entrada.punto"></span> <span class="hint" data-i18n-html="entrada.punto.ayuda"></span></label>
-    <input id="point" autocomplete="off" spellcheck="false">
+    <h3 data-i18n="entrada.vistaPrevia"></h3>
+    <div id="vistaPrevia" class="math vista-previa"></div>
+
+    <h3 id="tituloPunto" data-i18n="entrada.punto"></h3>
+    <p class="hint" data-i18n-html="entrada.punto.ayuda"></p>
+    <div id="valores" class="valores" role="group" aria-labelledby="tituloPunto"></div>
 
     <div class="row">
       <button class="primary" id="calc" type="button" data-i18n="entrada.calcular"></button>
-      <span class="muted" data-i18n="entrada.ejemplos"></span>
-      <span id="examples" class="row" style="margin-top:0"></span>
     </div>
 
+    <h3 data-i18n="entrada.ejemplos"></h3>
+    <div id="examples" class="ejemplos"></div>
+
     <details>
-      <summary class="muted" data-i18n="entrada.sintaxis.titulo"></summary>
+      <summary class="muted" data-i18n="entrada.opciones"></summary>
+      <label for="orden" data-i18n="entrada.orden"></label>
+      <input id="orden" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="ordenAyuda ordenError">
+      <p id="ordenAyuda" class="hint" data-i18n-html="entrada.orden.ayuda"></p>
+      <p id="ordenError" class="error-fila" hidden></p>
+      <h3 data-i18n="entrada.sintaxis.titulo"></h3>
       <p class="muted" data-i18n-html="entrada.sintaxis.texto"></p>
     </details>
   </section>

@@ -3,35 +3,298 @@
 
 import { mathDisponible } from "../lib/mathjs.js";
 import { calcular } from "../nucleo/calcular.js";
-import { resultadoTex, FORMULA_DIFERENCIA_CENTRADA } from "../nucleo/latex.js";
+import { analizarEntrada, analizarFuncion, variablesDe } from "../nucleo/entrada.js";
+import { latexACodigo } from "../nucleo/latex-a-codigo.js";
+import {
+  resultadoTex, definicionTex, nodoTex, variableTex, FORMULA_DIFERENCIA_CENTRADA,
+} from "../nucleo/latex.js";
 import { crearEstado } from "../estado.js";
-import { EJEMPLOS, EJEMPLO_INICIAL } from "../ejemplos.js";
+import { EJEMPLOS, EJEMPLO_INICIAL, GRUPOS } from "../ejemplos.js";
 import { t, mensajeDeError, aplicarTextos } from "../i18n/index.js";
+import { cargarEditorVisual, crearCampoVisual, configurarCampoVisual } from "./editor-visual.js";
 
 const $ = (id) => document.getElementById(id);
+const ESPERA_REFRESCO_MS = 350; // pausa al teclear antes de revisar errores y vista previa
+
 const estado = crearEstado();
+
+// Lo que solo interesa a la interfaz, por fila: el LaTeX tal como está en el
+// editor visual y el error al convertirlo a código. El estado guarda siempre
+// el código (la forma canónica).
+let filas = [{ latex: null, error: null }];
+let editorListo = false;        // MathLive ya está cargado
+let variablesPintadas = null;   // variables que tienen campo de valor ahora mismo
+let temporizador = null;
+
+const filaLimpia = () => ({ latex: null, error: null });
+const enVisual = () => estado.obtener().modo === "visual" && editorListo;
 
 function pintarTex(el, fuente, enBloque = true) {
   globalThis.katex.render(fuente, el, { displayMode: enBloque, throwOnError: false });
 }
 
-// --- Formulario <-> estado -------------------------------------------------
+function crear(etiqueta, clase, texto) {
+  const el = document.createElement(etiqueta);
+  if (clase) el.className = clase;
+  if (texto !== undefined) el.textContent = texto;
+  return el;
+}
 
-function leerFormulario() {
-  estado.actualizar({
-    variables: $("vars").value,
-    funciones: $("funcs").value.split("\n"),
-    punto: $("point").value,
+// --- Lista de funciones --------------------------------------------------------
+
+function fijarFuncion(i, codigo) {
+  const funciones = estado.obtener().funciones;
+  funciones[i] = codigo;
+  estado.actualizar({ funciones });
+}
+
+/** Código -> LaTeX para mostrarlo en el editor visual ("" si está vacío). */
+function codigoALatex(codigo) {
+  if (codigo.trim() === "") return "";
+  const nodo = analizarFuncion(codigo);
+  return nodoTex(nodo, [...variablesDe(nodo)]);
+}
+
+function crearCampoCodigo(i, codigo) {
+  const campo = crear("input", "campo");
+  campo.type = "text";
+  campo.value = codigo;
+  campo.placeholder = t("entrada.funcion.ejemploCodigo");
+  campo.autocomplete = "off";
+  campo.autocapitalize = "off";
+  campo.spellcheck = false;
+  campo.addEventListener("input", () => {
+    filas[i] = filaLimpia();
+    fijarFuncion(i, campo.value);
+    programarRefresco();
+  });
+  campo.addEventListener("keydown", (e) => { if (e.key === "Enter") ejecutar(); });
+  return campo;
+}
+
+function leerCampoVisual(i, campo) {
+  const latex = campo.getValue("latex");
+  let codigo = "";
+  let error = null;
+  try {
+    codigo = latexACodigo(latex, i + 1);
+  } catch (err) {
+    error = err;
+  }
+  filas[i] = { latex, error };
+  fijarFuncion(i, codigo);
+  programarRefresco();
+}
+
+function pintarFilas() {
+  const { funciones } = estado.obtener();
+  const visual = enVisual();
+  const lista = $("funciones");
+  lista.replaceChildren();
+
+  funciones.forEach((codigo, i) => {
+    const indice = i + 1;
+    const id = `f${indice}`;
+    const li = crear("li", "funcion");
+
+    const nombre = crear("label", "funcion-nombre");
+    nombre.htmlFor = id;
+    nombre.append("f");
+    if (funciones.length > 1) nombre.append(crear("sub", null, String(indice)));
+    nombre.append(" =");
+
+    const campo = visual ? crearCampoVisual() : crearCampoCodigo(i, codigo);
+    campo.id = id;
+    campo.setAttribute("aria-label", t("entrada.funcion.etiqueta", { indice }));
+    campo.setAttribute("aria-describedby", `${id}-error`);
+
+    const quitar = crear("button", "quitar", "✕");
+    quitar.type = "button";
+    quitar.setAttribute("aria-label", t("entrada.funcion.quitar", { indice }));
+    quitar.hidden = funciones.length === 1; // siempre queda al menos una función
+    quitar.addEventListener("click", () => quitarFuncion(i));
+
+    const error = crear("p", "error-fila");
+    error.id = `${id}-error`;
+    error.hidden = true;
+
+    li.append(nombre, campo, quitar, error);
+    lista.append(li);
+
+    if (visual) {
+      let latex = filas[i].latex;
+      if (latex === null) {
+        try { latex = codigoALatex(codigo); } catch { latex = ""; }
+      }
+      configurarCampoVisual(campo, latex);
+      campo.addEventListener("input", () => leerCampoVisual(i, campo));
+      campo.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); ejecutar(); }
+      });
+    }
   });
 }
 
-function pintarFormulario(e) {
-  $("vars").value = e.variables;
-  $("funcs").value = e.funciones.join("\n");
-  $("point").value = e.punto;
+function enfocarFuncion(i) {
+  const campo = $(`f${i + 1}`);
+  if (campo) campo.focus();
 }
 
-// --- Resultados --------------------------------------------------------------
+function agregarFuncion() {
+  const funciones = estado.obtener().funciones;
+  funciones.push("");
+  filas.push(filaLimpia());
+  estado.actualizar({ funciones });
+  pintarFilas();
+  refrescar();
+  enfocarFuncion(funciones.length - 1);
+}
+
+function quitarFuncion(i) {
+  const funciones = estado.obtener().funciones;
+  funciones.splice(i, 1);
+  filas.splice(i, 1);
+  estado.actualizar({ funciones });
+  pintarFilas();
+  refrescar();
+  enfocarFuncion(Math.min(i, funciones.length - 1));
+}
+
+// --- Revisión en vivo: errores por fila, variables y vista previa -----------------
+
+function pintarErrorFila(i, err) {
+  const campo = $(`f${i + 1}`);
+  const caja = $(`f${i + 1}-error`);
+  if (!campo || !caja) return;
+  caja.hidden = !err;
+  caja.textContent = err ? mensajeDeError(err) : "";
+  if (err) campo.setAttribute("aria-invalid", "true");
+  else campo.removeAttribute("aria-invalid");
+}
+
+function pintarValores(variables) {
+  if (variablesPintadas && variablesPintadas.join() === variables.join()) return; // no molestar al que escribe
+  variablesPintadas = variables;
+  const { valores } = estado.obtener();
+  const caja = $("valores");
+  caja.replaceChildren();
+  if (!variables.length) {
+    caja.append(crear("p", "hint", t("entrada.punto.sinVariables")));
+    return;
+  }
+  for (const variable of variables) {
+    const id = `v-${variable}`;
+    const grupo = crear("div", "valor");
+    const nombre = crear("label");
+    nombre.htmlFor = id;
+    pintarTex(nombre, `${variableTex(variable)} =`, false);
+
+    const campo = crear("input", "campo");
+    campo.id = id;
+    campo.type = "text";
+    campo.inputMode = "text";
+    campo.value = valores[variable] ?? "";
+    campo.autocomplete = "off";
+    campo.autocapitalize = "off";
+    campo.spellcheck = false;
+    campo.setAttribute("aria-label", t("entrada.punto.valorDe", { variable }));
+    campo.addEventListener("input", () => {
+      campo.removeAttribute("aria-invalid");
+      estado.actualizar({ valores: { ...estado.obtener().valores, [variable]: campo.value } });
+    });
+    campo.addEventListener("keydown", (e) => { if (e.key === "Enter") ejecutar(); });
+
+    grupo.append(nombre, campo);
+    caja.append(grupo);
+  }
+}
+
+function pintarVistaPrevia(analisis, hayErrores) {
+  const caja = $("vistaPrevia");
+  const nodos = analisis.filas.filter((f) => f.nodo).map((f) => f.nodo);
+  if (hayErrores || !nodos.length) {
+    caja.replaceChildren(crear("p", "hint", t(hayErrores ? "entrada.vistaPrevia.conErrores" : "entrada.vistaPrevia.vacia")));
+    return;
+  }
+  pintarTex(caja, definicionTex(nodos, analisis.variables));
+}
+
+function refrescar() {
+  clearTimeout(temporizador);
+  const e = estado.obtener();
+  const analisis = analizarEntrada(e);
+  let hayErrores = false;
+  e.funciones.forEach((_, i) => {
+    const err = filas[i].error ?? analisis.filas[i].error ?? null;
+    if (err) hayErrores = true;
+    pintarErrorFila(i, err);
+  });
+  pintarValores(analisis.variables);
+  pintarVistaPrevia(analisis, hayErrores);
+
+  const errorOrden = $("ordenError");
+  errorOrden.hidden = !analisis.errorOrden;
+  errorOrden.textContent = analisis.errorOrden ? mensajeDeError(analisis.errorOrden) : "";
+}
+
+function programarRefresco() {
+  clearTimeout(temporizador);
+  temporizador = setTimeout(refrescar, ESPERA_REFRESCO_MS);
+}
+
+// --- Modo visual / código -----------------------------------------------------------
+
+function avisar(texto) {
+  const aviso = $("avisoModo");
+  aviso.hidden = !texto;
+  aviso.textContent = texto ?? "";
+}
+
+function pintarModo() {
+  const { modo } = estado.obtener();
+  $("modoVisual").setAttribute("aria-pressed", String(modo === "visual"));
+  $("modoCodigo").setAttribute("aria-pressed", String(modo === "codigo"));
+}
+
+/** Carga MathLive si hace falta. Si no se puede, deja la calculadora en modo código. */
+async function asegurarEditor() {
+  if (editorListo) return true;
+  avisar(t("entrada.modo.cargando"));
+  try {
+    await cargarEditorVisual();
+    editorListo = true;
+    avisar(null);
+    return true;
+  } catch {
+    estado.actualizar({ modo: "codigo" });
+    pintarModo();
+    avisar(t("entrada.modo.sinEditor"));
+    return false;
+  }
+}
+
+async function cambiarModo(modo) {
+  if (estado.obtener().modo === modo && (modo === "codigo" || editorListo)) return;
+  refrescar();
+  // Cambiar de modo traduce cada función; con una función a medias se perdería lo escrito.
+  const e = estado.obtener();
+  const analisis = analizarEntrada(e);
+  const mala = e.funciones.findIndex((_, i) => filas[i].error || analisis.filas[i].error);
+  if (mala >= 0) {
+    avisar(t("entrada.modo.corrige", { indice: mala + 1 }));
+    enfocarFuncion(mala);
+    return;
+  }
+  avisar(null);
+  estado.actualizar({ modo });
+  filas = filas.map(filaLimpia);
+  pintarModo();
+  if (modo === "visual" && !(await asegurarEditor())) return;
+  pintarFilas();
+  refrescar();
+}
+
+// --- Resultados --------------------------------------------------------------------
 
 function mostrarResultado(r) {
   const tipo = r.esGradiente ? "gradiente" : "jacobiano";
@@ -54,57 +317,99 @@ function mostrarResultado(r) {
   $("results").hidden = false;
 }
 
-function mostrarError(mensaje) {
+function mostrarError(err) {
   $("results").hidden = true;
-  $("error").textContent = mensaje;
+  $("error").textContent = typeof err === "string" ? err : mensajeDeError(err);
   $("error").hidden = false;
+  // Señala el campo culpable, si el error dice cuál es.
+  const datos = (err && err.datos) || {};
+  if (datos.indice) pintarErrorFila(datos.indice - 1, err);
+  const campoValor = datos.variable ? $(`v-${datos.variable}`) : null;
+  if (campoValor) campoValor.setAttribute("aria-invalid", "true");
 }
 
 function ejecutar() {
-  leerFormulario();
+  refrescar();
+  document.querySelectorAll("#valores [aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
   try {
+    const errorVisual = filas.map((f) => f.error).find(Boolean);
+    if (errorVisual) throw errorVisual;
+    const resultado = calcular(estado.obtener());
     $("error").hidden = true;
-    mostrarResultado(calcular(estado.obtener()));
+    mostrarResultado(resultado);
   } catch (err) {
-    mostrarError(mensajeDeError(err));
+    mostrarError(err);
   }
 }
 
 function cargarEjemplo(ejemplo) {
-  estado.actualizar(ejemplo);
-  pintarFormulario(estado.obtener());
+  estado.actualizar({
+    funciones: [...ejemplo.funciones],
+    valores: { ...ejemplo.valores },
+    orden: ejemplo.orden ?? "",
+  });
+  filas = ejemplo.funciones.map(filaLimpia);
+  variablesPintadas = null; // fuerza a repintar los valores del punto
+  $("orden").value = ejemplo.orden ?? "";
+  avisar(null);
+  pintarFilas();
   ejecutar();
 }
 
-// --- Arranque ----------------------------------------------------------------
+// --- Arranque ------------------------------------------------------------------------
+
+function pintarEjemplos() {
+  for (const grupo of GRUPOS) {
+    const fila = crear("div", "grupo-ejemplos");
+    fila.append(crear("span", "muted", t(`entrada.ejemplos.${grupo}`)));
+    for (const ejemplo of EJEMPLOS.filter((e) => e.grupo === grupo)) {
+      const boton = crear("button", "chip", t(`ejemplo.${ejemplo.id}`));
+      boton.type = "button";
+      boton.addEventListener("click", () => cargarEjemplo(ejemplo));
+      fila.append(boton);
+    }
+    $("examples").append(fila);
+  }
+}
+
+/** Sustituye los campos de texto por el editor visual sin interrumpir a quien escribe. */
+function activarEditorVisual() {
+  if (estado.obtener().modo !== "visual") return;
+  const lista = $("funciones");
+  if (!lista.contains(document.activeElement)) {
+    pintarFilas();
+    refrescar();
+    return;
+  }
+  lista.addEventListener("focusout", () => setTimeout(activarEditorVisual, 0), { once: true });
+}
 
 function iniciar() {
   aplicarTextos(document);
-
-  for (const ejemplo of EJEMPLOS) {
-    const boton = document.createElement("button");
-    boton.className = "chip";
-    boton.type = "button";
-    boton.textContent = t(`ejemplo.${ejemplo.id}`);
-    boton.addEventListener("click", () => cargarEjemplo(ejemplo));
-    $("examples").appendChild(boton);
-  }
+  pintarEjemplos();
 
   $("calc").addEventListener("click", ejecutar);
-  for (const id of ["vars", "point"]) {
-    $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") ejecutar(); });
-  }
-  // En el área de funciones Enter añade una línea; Ctrl/Cmd + Enter calcula.
-  $("funcs").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) ejecutar();
+  $("agregar").addEventListener("click", agregarFuncion);
+  $("modoVisual").addEventListener("click", () => cambiarModo("visual"));
+  $("modoCodigo").addEventListener("click", () => cambiarModo("codigo"));
+  $("orden").addEventListener("input", () => {
+    estado.actualizar({ orden: $("orden").value });
+    programarRefresco();
   });
+  $("orden").addEventListener("keydown", (e) => { if (e.key === "Enter") ejecutar(); });
 
   if (!mathDisponible() || typeof globalThis.katex === "undefined") {
     mostrarError(t("error.librerias"));
     return;
   }
   pintarTex($("fdFormula"), FORMULA_DIFERENCIA_CENTRADA, false);
+  pintarModo();
   cargarEjemplo(EJEMPLOS.find((e) => e.id === EJEMPLO_INICIAL));
+
+  // El editor visual se pide cuando el navegador queda libre, tras el primer pintado.
+  const cargar = () => asegurarEditor().then((ok) => { if (ok) activarEditorVisual(); });
+  if ("requestIdleCallback" in window) window.requestIdleCallback(cargar, { timeout: 2000 });
+  else setTimeout(cargar, 200);
 }
 
 iniciar();
