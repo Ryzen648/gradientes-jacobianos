@@ -31,12 +31,18 @@ export function jacobianoNumerico(nodos, vars, x0, h = H) {
  * `gradcheck.py`.
  */
 export function errorRelativo(A, B) {
-  let diferencia = 0;
   let escala = 1;
   A.forEach((fila, i) => fila.forEach((a, j) => {
-    const b = B[i][j];
-    diferencia = Math.max(diferencia, Math.abs(a - b));
-    escala = Math.max(escala, Math.abs(a), Math.abs(b));
+    escala = Math.max(escala, Math.abs(a), Math.abs(B[i][j]));
   }));
-  return diferencia / escala;
+  return diferenciaMaxima(A, B) / escala;
+}
+
+/** ‖A − B‖_max: la mayor diferencia, en valor absoluto, entre dos entradas. */
+export function diferenciaMaxima(A, B) {
+  let diferencia = 0;
+  A.forEach((fila, i) => fila.forEach((a, j) => {
+    diferencia = Math.max(diferencia, Math.abs(a - B[i][j]));
+  }));
+  return diferencia;
 }

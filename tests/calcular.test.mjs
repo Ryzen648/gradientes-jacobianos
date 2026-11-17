@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { calcular } from "../js/nucleo/calcular.js";
-import { jacobianoNumerico, errorRelativo, TOLERANCIA } from "../js/nucleo/numerico.js";
+import { jacobianoNumerico, errorRelativo, diferenciaMaxima, TOLERANCIA } from "../js/nucleo/numerico.js";
 import { leerEntrada } from "../js/nucleo/entrada.js";
 import { FUNCIONES } from "../js/nucleo/lenguaje.js";
 import { EJEMPLOS, EJEMPLO_INICIAL, GRUPOS } from "../js/ejemplos.js";
@@ -185,6 +185,22 @@ test("jacobianoNumerico aproxima con error O(h²)", () => {
   const { vars, nodos, x0 } = leerEntrada({ funciones: ["x^3*y", "exp(x) - y^2"], valores: { x: "1.5", y: "-2" } });
   const J = jacobianoNumerico(nodos, vars, x0);
   matrizCerca(J, [[3 * 1.5 ** 2 * -2, 1.5 ** 3], [Math.exp(1.5), 4]], 1e-7);
+});
+
+test("el resultado incluye ‖J − J_num‖ y es coherente con el error relativo", () => {
+  const r = calcular(ejemplo("polares"));
+  let mayor = 0;
+  r.Jval.forEach((fila, i) => fila.forEach((v, j) => { mayor = Math.max(mayor, Math.abs(v - r.Jnum[i][j])); }));
+  assert.equal(r.diferencia, mayor);
+  assert.ok(r.diferencia > 0 && r.diferencia < 1e-8);
+  // Aquí la mayor entrada es 1.73, así que el error relativo es la diferencia entre ese tamaño.
+  cerca(r.error, r.diferencia / Math.max(1, ...r.Jval.flat().map(Math.abs), ...r.Jnum.flat().map(Math.abs)), 1e-20);
+  assert.equal(r.coincide, r.error < TOLERANCIA);
+});
+
+test("diferenciaMaxima", () => {
+  assert.equal(diferenciaMaxima([[1, 2], [3, 4]], [[1, 2.5], [2, 4]]), 1);
+  assert.equal(diferenciaMaxima([[1, 2]], [[1, 2]]), 0);
 });
 
 test("errorRelativo es absoluto cerca de cero y relativo para valores grandes", () => {

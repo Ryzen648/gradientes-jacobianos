@@ -3,7 +3,7 @@
 import { math } from "../lib/mathjs.js";
 import { leerEntrada } from "./entrada.js";
 import { jacobianoSimbolico, evaluarJacobiano } from "./derivacion.js";
-import { jacobianoNumerico, errorRelativo, TOLERANCIA } from "./numerico.js";
+import { jacobianoNumerico, errorRelativo, diferenciaMaxima, TOLERANCIA } from "./numerico.js";
 import { diagnosticarPunto } from "./diagnostico.js";
 
 const SIN_VALOR_FINITO = new Set(["derivadaNoFinita", "funcionNoFinita"]);
@@ -45,5 +45,9 @@ export function calcular(entrada) {
     extra = { tipo: "determinante", valor: Math.abs(det) < 1e-12 * escala ? 0 : det };
   }
 
-  return { vars, nodos, x0, Jsim, Jval, Jnum, error, coincide: error < TOLERANCIA, esGradiente, extra };
+  return {
+    vars, nodos, x0, Jsim, Jval, Jnum,
+    diferencia: diferenciaMaxima(Jval, Jnum), error, coincide: error < TOLERANCIA,
+    esGradiente, extra,
+  };
 }

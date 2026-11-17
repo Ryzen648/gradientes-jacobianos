@@ -9,6 +9,9 @@
 //   valores    texto del valor de cada variable: { x: "1.3", y: "pi/4" }
 //   orden      orden de las variables ("p, t, f"); vacío = alfabético
 //   modo       "visual" (editor matemático) o "codigo" (texto plano)
+//   precision  decimales con los que se muestran los resultados (4, 6 o 10)
+
+import { PRECISIONES, PRECISION_INICIAL } from "./nucleo/latex.js";
 
 export const MODOS = Object.freeze(["visual", "codigo"]);
 
@@ -17,6 +20,7 @@ export const ESTADO_VACIO = Object.freeze({
   valores: Object.freeze({}),
   orden: "",
   modo: "visual",
+  precision: PRECISION_INICIAL,
 });
 
 function normalizar(e) {
@@ -28,6 +32,7 @@ function normalizar(e) {
     valores,
     orden: String(e.orden ?? ""),
     modo: MODOS.includes(e.modo) ? e.modo : "visual",
+    precision: PRECISIONES.includes(Number(e.precision)) ? Number(e.precision) : PRECISION_INICIAL,
   };
 }
 
