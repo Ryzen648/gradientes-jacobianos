@@ -1,6 +1,6 @@
 // Jacobiano simbólico y su evaluación en un punto.
 
-import { math } from "../lib/mathjs.js";
+import { math } from "../../comun/js/mathjs.js";
 import { ErrorCalculo } from "./errores.js";
 import { numeroFinito } from "./entrada.js";
 

@@ -1,6 +1,6 @@
 // Orquesta un cálculo completo: leer, derivar, evaluar y verificar.
 
-import { math } from "../lib/mathjs.js";
+import { math } from "../../comun/js/mathjs.js";
 import { leerEntrada } from "./entrada.js";
 import { jacobianoSimbolico, evaluarJacobiano } from "./derivacion.js";
 import { jacobianoNumerico, errorRelativo, diferenciaMaxima, TOLERANCIA } from "./numerico.js";

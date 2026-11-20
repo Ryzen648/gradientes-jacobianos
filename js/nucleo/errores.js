@@ -4,35 +4,19 @@
 // interfaz los traduce con el diccionario de `js/i18n`. Así los mensajes se
 // pueden traducir sin tocar la lógica y las pruebas comprueban códigos, no
 // frases. `indice` es siempre el número de la función (empezando en 1).
+//
+// La clase `ErrorCalculo` y los códigos de la lectura de una función (sintaxis
+// y editor visual) vienen de lab-comun (`comun/js/errores.js`); aquí se
+// declaran los propios de esta calculadora.
 
-export const CODIGOS = Object.freeze([
+import { ErrorCalculo, CODIGOS_ENTRADA_TEXTO, CODIGOS_ENTRADA_VISUAL } from "../../comun/js/errores.js";
+
+export { ErrorCalculo };
+
+const CODIGOS_PROPIOS = [
   // --- Lista de funciones ---
   "sinFunciones",              // {}
-  "funcionVacia",              // { indice }
   "sinVariables",              // {}
-
-  // --- Sintaxis de una función ---
-  "parentesisSinCerrar",       // { indice, faltan }
-  "parentesisSobra",           // { indice, posicion }
-  "expresionIncompleta",       // { indice }
-  "faltaValor",                // { indice, posicion, cerca }
-  "operadorInesperado",        // { indice, operador, posicion }
-  "parteInesperada",           // { indice, parte, posicion }
-  "sintaxis",                  // { indice }
-  "operadorNoAdmitido",        // { indice, operador }
-  "expresionNoAdmitida",       // { indice }
-  "funcionDesconocida",        // { indice, nombre }
-  "funcionDesconocidaSugerencia", // { indice, nombre, sugerencia }
-  "productoImplicito",         // { indice, nombre }
-  "funcionSinArgumento",       // { indice, nombre }
-  "argumentosFuncion",         // { indice, nombre, maximo }
-  "unidadImaginaria",          // { indice }
-  "nombreNoValido",            // { indice, nombre }
-
-  // --- Editor visual (LaTeX) ---
-  "visualHueco",               // { indice }
-  "visualIncompleto",          // { indice }
-  "visualNoAdmitido",          // { indice, simbolo }
 
   // --- Variables y punto ---
   "ordenInvalido",             // { esperadas }
@@ -52,13 +36,7 @@ export const CODIGOS = Object.freeze([
   "divisionPorCero",           // { indice, expr }
   "potenciaNoDerivable",       // { indice, expr }
   "dominioPotencia",           // { indice, expr, valor }
-]);
+];
 
-export class ErrorCalculo extends Error {
-  constructor(codigo, datos = {}) {
-    super(codigo);
-    this.name = "ErrorCalculo";
-    this.codigo = codigo;
-    this.datos = datos;
-  }
-}
+/** Todos los códigos que puede ver esta calculadora: los propios y los de la entrada compartida. */
+export const CODIGOS = Object.freeze([...CODIGOS_PROPIOS, ...CODIGOS_ENTRADA_TEXTO, ...CODIGOS_ENTRADA_VISUAL]);

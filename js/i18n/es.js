@@ -1,6 +1,8 @@
 // Textos en español. Las claves `error.<código>` corresponden a los códigos
-// de `js/nucleo/errores.js`. Los valores con etiquetas HTML solo se usan en
-// elementos marcados con `data-i18n-html` y nunca incluyen texto del usuario.
+// de `js/nucleo/errores.js`; los de los componentes compartidos (modo
+// Visual/Código, tema, errores del editor visual) están en lab-comun.
+// Los valores con etiquetas HTML solo se usan en elementos marcados con
+// `data-i18n-html` y nunca incluyen texto del usuario.
 
 export default {
   "pagina.titulo": "Calculadora de gradientes y jacobianos",
@@ -9,11 +11,6 @@ export default {
   // --- Entrada ---
   "entrada.funciones": "Funciones",
   "entrada.funciones.ayuda": "Una función da el gradiente; varias dan el jacobiano. Las variables se detectan solas.",
-  "entrada.modo": "Modo de edición",
-  "entrada.modo.visual": "Visual",
-  "entrada.modo.codigo": "Código",
-  "entrada.modo.cargando": "Cargando el editor visual…",
-  "entrada.modo.sinEditor": "No se pudo cargar el editor visual (revisa tu conexión). Puedes seguir en modo Código.",
   "entrada.modo.corrige": "Corrige la función {indice} antes de cambiar de modo.",
   "entrada.funcion.etiqueta": "Función {indice}",
   "entrada.funcion.ejemploCodigo": "p. ej. x^2*y + sin(x*y)",
@@ -83,7 +80,6 @@ export default {
 
   // --- Errores generales ---
   "error.librerias": "No se pudieron cargar las librerías (math.js / KaTeX). Revisa tu conexión y recarga la página.",
-  "error.inesperado": "Ocurrió un error inesperado: {detalle}",
 
   // --- Errores: lista de funciones ---
   "error.sinFunciones": "Escribe al menos una función para calcular.",
@@ -91,27 +87,11 @@ export default {
   "error.sinVariables": "Las funciones no dependen de ninguna variable, así que no hay nada que derivar. Usa letras como x o y.",
 
   // --- Errores: sintaxis ---
-  "error.parentesisSinCerrar": "En la función {indice} faltan paréntesis de cierre: añade {faltan} «)».",
-  "error.parentesisSobra": "En la función {indice} sobra un paréntesis de cierre «)» (posición {posicion}): no tiene uno de apertura.",
-  "error.expresionIncompleta": "La función {indice} termina de forma inesperada: falta algo después del último operador.",
-  "error.faltaValor": "En la función {indice} falta un número o una variable cerca de «{cerca}» (posición {posicion}): hay dos operadores seguidos o un paréntesis vacío.",
+  // Los textos generales están en lab-comun; estos los sustituyen porque
+  // mencionan partes de esta página (filas, ✕, el panel de sintaxis).
   "error.operadorInesperado": "En la función {indice} el símbolo «{operador}» (posición {posicion}) no va ahí. Si son dos funciones, pon cada una en su propia fila.",
-  "error.parteInesperada": "En la función {indice} no entiendo «{parte}» (posición {posicion}). Revisa si hay un punto decimal de más o un carácter extraño.",
-  "error.sintaxis": "No entiendo la función {indice}. Revisa que solo use números, variables, + - * / ^, paréntesis y funciones.",
-  "error.operadorNoAdmitido": "En la función {indice} se usa «{operador}», que no está admitido. Solo se admiten + - * / ^.",
   "error.expresionNoAdmitida": "La función {indice} no es una expresión que se pueda derivar: no uses «=», listas ni comparaciones; escribe solo la fórmula.",
   "error.funcionDesconocida": "En la función {indice} se usa «{nombre}(…)», que no es una función admitida. Abre «Orden de las variables y sintaxis» para ver la lista.",
-  "error.funcionDesconocidaSugerencia": "En la función {indice} se usa «{nombre}(…)», que no existe. ¿Quisiste decir «{sugerencia}»?",
-  "error.productoImplicito": "En la función {indice}, «{nombre}(…)» se lee como una función llamada {nombre}. Para multiplicar escribe «{nombre}*(…)».",
-  "error.funcionSinArgumento": "En la función {indice}, «{nombre}» es una función y necesita su argumento entre paréntesis, p. ej. {nombre}(x).",
-  "error.argumentosFuncion": "En la función {indice}, «{nombre}» recibe un número de argumentos incorrecto (admite como máximo {maximo}).",
-  "error.unidadImaginaria": "En la función {indice} aparece «i», que es la unidad imaginaria. Usa otra letra como variable.",
-  "error.nombreNoValido": "En la función {indice}, «{nombre}» no es un nombre de variable válido: usa letras, dígitos y guion bajo, empezando por una letra.",
-
-  // --- Errores: editor visual ---
-  "error.visualHueco": "En la función {indice} queda un hueco sin rellenar (una fracción, un exponente o una raíz vacía).",
-  "error.visualIncompleto": "La función {indice} está incompleta: falta algo después del último operador o función.",
-  "error.visualNoAdmitido": "En la función {indice} se usa «{simbolo}», que la calculadora no admite.",
 
   // --- Errores: variables y punto ---
   "error.ordenInvalido": "El orden de las variables debe nombrar exactamente estas, una vez cada una: {esperadas}.",

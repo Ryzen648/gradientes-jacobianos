@@ -17,7 +17,10 @@ sin servidor ni paso de build.
 
 - **Editor visual o de código.** Las funciones se escriben en un editor
   matemático (MathLive, con teclado en pantalla en el móvil) o, en modo
-  *Código*, como texto: `x^2*y + sin(x*y)`.
+  *Código*, como texto: `x^2*y + sin(x*y)`. En el móvil, el botón
+  «Calcular» se queda justo encima del teclado en pantalla y, al pulsarlo,
+  el teclado se cierra y la vista baja hasta el resultado.
+- **Tema claro, oscuro o automático**, con un botón que recuerda la elección.
 - **Variables automáticas.** Se detectan al escribir y cada una recibe su
   campo de valor, que admite expresiones como `pi/4`.
 - **Una función da el gradiente; varias, el jacobiano.** Se añaden y quitan
@@ -33,6 +36,10 @@ sin servidor ni paso de build.
   de valores para pegar en código.
 - **Verificación a la vista.** Se muestra ‖J − J_num‖, el error relativo y el
   criterio de tolerancia, y se puede elegir entre 4, 6 o 10 decimales.
+- **Enlace para compartir.** Cada cálculo queda en la dirección de la página
+  (`#f=x*y&v.x=1&v.y=2`, una `f` por función y `v.` delante de cada
+  variable), así que basta copiarla para que otra persona lo abra tal cual.
+  Sin fragmento, la página arranca como siempre con el ejemplo inicial.
 
 Librerías, todas desde CDN: math.js (derivación simbólica), KaTeX (fórmulas) y
 MathLive (editor visual, con carga diferida para que la página abra rápido).
@@ -44,8 +51,9 @@ MathLive (editor visual, con carga diferida para que la página abra rápido).
 | Ruta | Descripción |
 |---|---|
 | [`index.html`](index.html), [`css/`](css) | Página de la calculadora (GitHub Pages) |
+| [`comun/`](https://github.com/Ryzen648/lab-comun) | Submódulo [lab-comun](https://github.com/Ryzen648/lab-comun), compartido con [diffeq-lab](https://github.com/Ryzen648/diffeq-lab): editor visual, tema, conversión código ↔ LaTeX, textos comunes |
 | [`js/nucleo/`](js/nucleo) | Lógica sin DOM: lectura de la entrada, derivación, verificación numérica y LaTeX |
-| [`js/ui/`](js/ui), [`js/estado.js`](js/estado.js), [`js/i18n/`](js/i18n) | Interfaz, modelo de estado y textos |
+| [`js/ui/`](js/ui), [`js/estado.js`](js/estado.js), [`js/estado-url.js`](js/estado-url.js), [`js/i18n/`](js/i18n) | Interfaz, modelo de estado, estado en la URL y textos |
 | [`tests/`](tests) | Pruebas de la calculadora (`node --test`) |
 | [`ejercicios/`](ejercicios) | Material aparte, en Python: notebook de ejercicios resueltos, `gradcheck.py` y sus pruebas. La calculadora no depende de esta carpeta |
 
@@ -53,6 +61,14 @@ MathLive (editor visual, con carga diferida para que la página abra rápido).
 
 Hace falta [Node.js](https://nodejs.org) 22 o posterior. La única dependencia
 es math.js, y solo para las pruebas (la página la carga desde un CDN).
+
+Los componentes compartidos están en el submódulo `comun/`, así que hay que
+clonar con `--recurse-submodules` (o, si ya está clonado, ejecutar
+`git submodule update --init`):
+
+```bash
+git clone --recurse-submodules https://github.com/Ryzen648/gradientes-jacobianos.git
+```
 
 ```bash
 npm install
