@@ -1,6 +1,8 @@
 // Textos en español. Las claves `error.<código>` corresponden a los códigos
-// de `js/nucleo/errores.js`. Los valores con etiquetas HTML solo se usan en
-// elementos marcados con `data-i18n-html` y nunca incluyen texto del usuario.
+// de `js/nucleo/errores.js`; los de los componentes compartidos (modo
+// Visual/Código, tema, errores del editor visual) están en lab-comun.
+// Los valores con etiquetas HTML solo se usan en elementos marcados con
+// `data-i18n-html` y nunca incluyen texto del usuario.
 
 export default {
   "pagina.titulo": "Calculadora de gradientes y jacobianos",
@@ -9,11 +11,6 @@ export default {
   // --- Entrada ---
   "entrada.funciones": "Funciones",
   "entrada.funciones.ayuda": "Una función da el gradiente; varias dan el jacobiano. Las variables se detectan solas.",
-  "entrada.modo": "Modo de edición",
-  "entrada.modo.visual": "Visual",
-  "entrada.modo.codigo": "Código",
-  "entrada.modo.cargando": "Cargando el editor visual…",
-  "entrada.modo.sinEditor": "No se pudo cargar el editor visual (revisa tu conexión). Puedes seguir en modo Código.",
   "entrada.modo.corrige": "Corrige la función {indice} antes de cambiar de modo.",
   "entrada.funcion.etiqueta": "Función {indice}",
   "entrada.funcion.ejemploCodigo": "p. ej. x^2*y + sin(x*y)",
@@ -83,7 +80,6 @@ export default {
 
   // --- Errores generales ---
   "error.librerias": "No se pudieron cargar las librerías (math.js / KaTeX). Revisa tu conexión y recarga la página.",
-  "error.inesperado": "Ocurrió un error inesperado: {detalle}",
 
   // --- Errores: lista de funciones ---
   "error.sinFunciones": "Escribe al menos una función para calcular.",
@@ -107,11 +103,6 @@ export default {
   "error.argumentosFuncion": "En la función {indice}, «{nombre}» recibe un número de argumentos incorrecto (admite como máximo {maximo}).",
   "error.unidadImaginaria": "En la función {indice} aparece «i», que es la unidad imaginaria. Usa otra letra como variable.",
   "error.nombreNoValido": "En la función {indice}, «{nombre}» no es un nombre de variable válido: usa letras, dígitos y guion bajo, empezando por una letra.",
-
-  // --- Errores: editor visual ---
-  "error.visualHueco": "En la función {indice} queda un hueco sin rellenar (una fracción, un exponente o una raíz vacía).",
-  "error.visualIncompleto": "La función {indice} está incompleta: falta algo después del último operador o función.",
-  "error.visualNoAdmitido": "En la función {indice} se usa «{simbolo}», que la calculadora no admite.",
 
   // --- Errores: variables y punto ---
   "error.ordenInvalido": "El orden de las variables debe nombrar exactamente estas, una vez cada una: {esperadas}.",

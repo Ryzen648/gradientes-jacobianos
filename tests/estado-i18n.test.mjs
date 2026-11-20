@@ -91,10 +91,10 @@ test("no hay textos de error sin código (ni códigos sin usar)", () => {
   for (const codigo of conTexto) {
     assert.ok(CODIGOS.includes(codigo) || propios.has(codigo), `error.${codigo} no corresponde a ningún código`);
   }
-  // Cada código declarado se lanza en algún sitio del núcleo.
-  const fuentes = readdirSync(new URL("../js/nucleo/", import.meta.url))
-    .filter((f) => f !== "errores.js")
-    .map((f) => leer(`../js/nucleo/${f}`))
+  // Cada código declarado se lanza en algún sitio del núcleo o de la entrada compartida (lab-comun).
+  const carpetas = ["../js/nucleo/", "../comun/js/entrada/"];
+  const fuentes = carpetas
+    .flatMap((c) => readdirSync(new URL(c, import.meta.url)).filter((f) => f !== "errores.js").map((f) => leer(`${c}${f}`)))
     .join("\n");
   for (const codigo of CODIGOS) assert.ok(fuentes.includes(`"${codigo}"`), `el código ${codigo} no se usa`);
 });
