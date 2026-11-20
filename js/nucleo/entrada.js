@@ -4,7 +4,7 @@
 // editor visual se convierte antes a ese texto en `latex-a-codigo.js`, de modo
 // que toda la validación pasa por un único sitio.
 
-import { math } from "../lib/mathjs.js";
+import { math } from "../../comun/js/mathjs.js";
 import { ErrorCalculo } from "./errores.js";
 import { ALIAS_FUNCION, CONSTANTES, FUNCIONES, MAX_ARGUMENTOS, resolverFuncion, sugerirFuncion } from "../../comun/js/entrada/lenguaje.js";
 

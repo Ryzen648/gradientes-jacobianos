@@ -1,7 +1,7 @@
 // Interfaz: conecta el formulario con el estado y pinta los resultados.
 // Toda la matemática está en `js/nucleo`; aquí solo hay DOM.
 
-import { mathDisponible } from "../lib/mathjs.js";
+import { mathDisponible } from "../../comun/js/mathjs.js";
 import { calcular } from "../nucleo/calcular.js";
 import { analizarEntrada, analizarFuncion } from "../nucleo/entrada.js";
 import { latexACodigo } from "../../comun/js/entrada/latex-a-codigo.js";
