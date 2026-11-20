@@ -7,10 +7,11 @@ import { analizarEntrada, analizarFuncion } from "../nucleo/entrada.js";
 import { latexACodigo } from "../../comun/js/entrada/latex-a-codigo.js";
 import {
   resultadoTex, definicionTex, nodoTex, variableTex,
-  FORMULA_DIFERENCIA_CENTRADA, CRITERIO_TEX, PASO_TEX, PRECISIONES,
+  FORMULA_DIFERENCIA_CENTRADA, CRITERIO_TEX, PASO_TEX, PRECISIONES, PRECISION_INICIAL,
 } from "../nucleo/latex.js";
 import { copiarAlPortapapeles } from "./portapapeles.js";
 import { crearEstado } from "../estado.js";
+import { leerFragmento, escribirFragmento } from "../estado-url.js";
 import { EJEMPLOS, EJEMPLO_INICIAL, GRUPOS } from "../ejemplos.js";
 import { t, mensajeDeError, aplicarTextos } from "../i18n/index.js";
 import { cargarEditorVisual, crearCampoVisual, configurarCampoVisual } from "../../comun/js/editor-visual.js";
@@ -338,11 +339,28 @@ function mostrarError(err) {
 }
 
 /**
+ * Escribe el cálculo en la URL (fragmento #) para poder compartirlo. Solo los
+ * valores de las variables que aparecen en las funciones; la precisión, si no
+ * es la inicial. replaceState: no llena el historial ni recarga la página.
+ */
+function guardarEnURL() {
+  const e = estado.obtener();
+  const { variables } = analizarEntrada(e);
+  const valores = Object.fromEntries(variables.filter((v) => v in e.valores).map((v) => [v, e.valores[v]]));
+  history.replaceState(null, "", escribirFragmento({
+    funciones: e.funciones, valores, orden: e.orden,
+    precision: e.precision === PRECISION_INICIAL ? undefined : e.precision,
+  }));
+}
+
+/**
  * `desdeUsuario`: el cálculo lo pidió la persona (botón o Enter), no un ejemplo
  * al arrancar. Entonces se cierra el teclado en pantalla, que taparía la
  * respuesta, y si el resultado (o el error) no se ve, se lleva la vista hasta él.
+ * `guardar`: escribir el cálculo en la URL (no al abrir la página sin enlace,
+ * para no cambiar la dirección de quien solo entra).
  */
-function ejecutar({ desdeUsuario = true } = {}) {
+function ejecutar({ desdeUsuario = true, guardar = true } = {}) {
   refrescar();
   document.querySelectorAll("#valores [aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
   try {
@@ -354,21 +372,42 @@ function ejecutar({ desdeUsuario = true } = {}) {
   } catch (err) {
     mostrarError(err);
   }
+  if (guardar) guardarEnURL();
   if (desdeUsuario) llevarAlResultado($("error").hidden ? $("results") : $("error"));
 }
 
-function cargarEjemplo(ejemplo) {
-  estado.actualizar({
-    funciones: [...ejemplo.funciones],
-    valores: { ...ejemplo.valores },
-    orden: ejemplo.orden ?? "",
-  });
-  filas = ejemplo.funciones.map(filaLimpia);
+/** Carga funciones, valores, orden y (si viene) precisión, y calcula. */
+function cargarCalculo({ funciones, valores = {}, orden = "", precision }, { guardar = true } = {}) {
+  estado.actualizar({ funciones: [...funciones], valores: { ...valores }, orden, ...(precision === undefined ? {} : { precision }) });
+  filas = estado.obtener().funciones.map(filaLimpia);
   variablesPintadas = null; // fuerza a repintar los valores del punto
-  $("orden").value = ejemplo.orden ?? "";
+  $("orden").value = estado.obtener().orden;
+  $("precision").value = String(estado.obtener().precision);
   avisar(null);
   pintarFilas();
-  ejecutar({ desdeUsuario: false });
+  ejecutar({ desdeUsuario: false, guardar });
+}
+
+function cargarEjemplo(ejemplo, opciones) {
+  cargarCalculo({ funciones: ejemplo.funciones, valores: ejemplo.valores, orden: ejemplo.orden ?? "" }, opciones);
+}
+
+/**
+ * Lo que pide la URL al abrir la página (o al cambiar su fragmento a mano):
+ * un ejemplo, un cálculo completo o nada (entonces, el ejemplo inicial).
+ * Devuelve true si había algo que cargar.
+ */
+function cargarDesdeURL() {
+  const pedido = leerFragmento(location.hash);
+  if (pedido?.ejemplo) {
+    const ejemplo = EJEMPLOS.find((e) => e.id === pedido.ejemplo);
+    if (!ejemplo) return false;
+    cargarEjemplo(ejemplo, { guardar: false });
+    return true;
+  }
+  if (!pedido) return false;
+  cargarCalculo(pedido, { guardar: false });
+  return true;
 }
 
 // --- Copiar y precisión ----------------------------------------------------------------
@@ -391,7 +430,7 @@ function pintarSelectorDePrecision() {
   selector.value = String(estado.obtener().precision);
   selector.addEventListener("change", () => {
     estado.actualizar({ precision: Number(selector.value) });
-    if (ultimoResultado) mostrarResultado(ultimoResultado);
+    if (ultimoResultado) { mostrarResultado(ultimoResultado); guardarEnURL(); }
   });
 }
 
@@ -448,7 +487,8 @@ function iniciar() {
   pintarTex($("pasoFormula"), PASO_TEX, false);
   pintarTex($("criterio"), CRITERIO_TEX);
   pintarModo();
-  cargarEjemplo(EJEMPLOS.find((e) => e.id === EJEMPLO_INICIAL));
+  if (!cargarDesdeURL()) cargarEjemplo(EJEMPLOS.find((e) => e.id === EJEMPLO_INICIAL), { guardar: false });
+  window.addEventListener("hashchange", cargarDesdeURL);
 
   // El editor visual se pide cuando el navegador queda libre, tras el primer pintado.
   const cargar = () => asegurarEditor().then((ok) => { if (ok) activarEditorVisual(); });
