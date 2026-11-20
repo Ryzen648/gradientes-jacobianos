@@ -1,7 +1,7 @@
 // Generación de LaTeX y de texto copiable a partir de un resultado. No toca
 // el DOM: solo devuelve cadenas, así se puede probar sin navegador.
 
-import { expresionTex, nombreTex } from "./impresion.js";
+import { expresionTex, nombreTex } from "../../comun/js/entrada/impresion.js";
 import { H, TOLERANCIA } from "./numerico.js";
 
 export { expresionTex as nodoTex, nombreTex as variableTex };

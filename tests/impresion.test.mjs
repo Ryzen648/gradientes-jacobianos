@@ -2,9 +2,9 @@ import "./preparar.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { expresionTex, nombreTex } from "../js/nucleo/impresion.js";
+import { expresionTex, nombreTex } from "../comun/js/entrada/impresion.js";
 import { analizarFuncion, variablesDe } from "../js/nucleo/entrada.js";
-import { latexACodigo } from "../js/nucleo/latex-a-codigo.js";
+import { latexACodigo } from "../comun/js/entrada/latex-a-codigo.js";
 import { calcular } from "../js/nucleo/calcular.js";
 import { EJEMPLOS } from "../js/ejemplos.js";
 import { cerca } from "./ayuda.mjs";

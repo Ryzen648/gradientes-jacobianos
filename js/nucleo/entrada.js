@@ -6,7 +6,7 @@
 
 import { math } from "../lib/mathjs.js";
 import { ErrorCalculo } from "./errores.js";
-import { ALIAS_FUNCION, CONSTANTES, FUNCIONES, MAX_ARGUMENTOS, resolverFuncion, sugerirFuncion } from "./lenguaje.js";
+import { ALIAS_FUNCION, CONSTANTES, FUNCIONES, MAX_ARGUMENTOS, resolverFuncion, sugerirFuncion } from "../../comun/js/entrada/lenguaje.js";
 
 /** Devuelve el número si es real y finito; si no, lanza el error indicado. */
 export function numeroFinito(valor, codigo, datos) {

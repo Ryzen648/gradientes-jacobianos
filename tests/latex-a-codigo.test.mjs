@@ -2,10 +2,10 @@ import "./preparar.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { latexACodigo } from "../js/nucleo/latex-a-codigo.js";
+import { latexACodigo } from "../comun/js/entrada/latex-a-codigo.js";
 import { analizarFuncion, variablesDe } from "../js/nucleo/entrada.js";
 import { nodoTex } from "../js/nucleo/latex.js";
-import { FUNCIONES } from "../js/nucleo/lenguaje.js";
+import { FUNCIONES } from "../comun/js/entrada/lenguaje.js";
 import { EJEMPLOS } from "../js/ejemplos.js";
 import { lanza, cerca } from "./ayuda.mjs";
 

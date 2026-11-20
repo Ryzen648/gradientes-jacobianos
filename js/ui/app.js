@@ -4,7 +4,7 @@
 import { mathDisponible } from "../lib/mathjs.js";
 import { calcular } from "../nucleo/calcular.js";
 import { analizarEntrada, analizarFuncion } from "../nucleo/entrada.js";
-import { latexACodigo } from "../nucleo/latex-a-codigo.js";
+import { latexACodigo } from "../../comun/js/entrada/latex-a-codigo.js";
 import {
   resultadoTex, definicionTex, nodoTex, variableTex,
   FORMULA_DIFERENCIA_CENTRADA, CRITERIO_TEX, PASO_TEX, PRECISIONES,
@@ -13,7 +13,9 @@ import { copiarAlPortapapeles } from "./portapapeles.js";
 import { crearEstado } from "../estado.js";
 import { EJEMPLOS, EJEMPLO_INICIAL, GRUPOS } from "../ejemplos.js";
 import { t, mensajeDeError, aplicarTextos } from "../i18n/index.js";
-import { cargarEditorVisual, crearCampoVisual, configurarCampoVisual } from "./editor-visual.js";
+import { cargarEditorVisual, crearCampoVisual, configurarCampoVisual } from "../../comun/js/editor-visual.js";
+import { llevarAlResultado } from "../../comun/js/teclado-virtual.js";
+import { conectarBotonTema } from "../../comun/js/tema.js";
 
 const $ = (id) => document.getElementById(id);
 const ESPERA_REFRESCO_MS = 350; // pausa al teclear antes de revisar errores y vista previa
@@ -263,7 +265,7 @@ function pintarModo() {
 /** Carga MathLive si hace falta. Si no se puede, deja la calculadora en modo código. */
 async function asegurarEditor() {
   if (editorListo) return true;
-  avisar(t("entrada.modo.cargando"));
+  avisar(t("comun.modo.cargando"));
   try {
     await cargarEditorVisual();
     editorListo = true;
@@ -272,7 +274,7 @@ async function asegurarEditor() {
   } catch {
     estado.actualizar({ modo: "codigo" });
     pintarModo();
-    avisar(t("entrada.modo.sinEditor"));
+    avisar(t("comun.modo.sinEditor"));
     return false;
   }
 }
@@ -335,7 +337,12 @@ function mostrarError(err) {
   if (campoValor) campoValor.setAttribute("aria-invalid", "true");
 }
 
-function ejecutar() {
+/**
+ * `desdeUsuario`: el cálculo lo pidió la persona (botón o Enter), no un ejemplo
+ * al arrancar. Entonces se cierra el teclado en pantalla, que taparía la
+ * respuesta, y si el resultado (o el error) no se ve, se lleva la vista hasta él.
+ */
+function ejecutar({ desdeUsuario = true } = {}) {
   refrescar();
   document.querySelectorAll("#valores [aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
   try {
@@ -347,6 +354,7 @@ function ejecutar() {
   } catch (err) {
     mostrarError(err);
   }
+  if (desdeUsuario) llevarAlResultado($("error").hidden ? $("results") : $("error"));
 }
 
 function cargarEjemplo(ejemplo) {
@@ -360,7 +368,7 @@ function cargarEjemplo(ejemplo) {
   $("orden").value = ejemplo.orden ?? "";
   avisar(null);
   pintarFilas();
-  ejecutar();
+  ejecutar({ desdeUsuario: false });
 }
 
 // --- Copiar y precisión ----------------------------------------------------------------
@@ -417,9 +425,10 @@ function activarEditorVisual() {
 
 function iniciar() {
   aplicarTextos(document);
+  conectarBotonTema($("tema"), (tema) => t(`comun.tema.${tema}`));
   pintarEjemplos();
 
-  $("calc").addEventListener("click", ejecutar);
+  $("calc").addEventListener("click", () => ejecutar());
   $("agregar").addEventListener("click", agregarFuncion);
   $("modoVisual").addEventListener("click", () => cambiarModo("visual"));
   $("modoCodigo").addEventListener("click", () => cambiarModo("codigo"));

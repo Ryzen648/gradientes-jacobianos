@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { calcular } from "../js/nucleo/calcular.js";
 import { jacobianoNumerico, errorRelativo, diferenciaMaxima, TOLERANCIA } from "../js/nucleo/numerico.js";
 import { leerEntrada } from "../js/nucleo/entrada.js";
-import { FUNCIONES } from "../js/nucleo/lenguaje.js";
+import { FUNCIONES } from "../comun/js/entrada/lenguaje.js";
 import { EJEMPLOS, EJEMPLO_INICIAL, GRUPOS } from "../js/ejemplos.js";
 import { lanza, cerca, matrizCerca } from "./ayuda.mjs";
 

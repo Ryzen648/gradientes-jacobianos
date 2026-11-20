@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import {
   normalizar, analizarFuncion, detectarVariables, resolverOrden, leerValores, leerEntrada, analizarEntrada,
 } from "../js/nucleo/entrada.js";
-import { sugerirFuncion } from "../js/nucleo/lenguaje.js";
+import { sugerirFuncion } from "../comun/js/entrada/lenguaje.js";
 import { lanza, cerca } from "./ayuda.mjs";
 
 const valor = (texto, ambito) => analizarFuncion(texto).evaluate(ambito);
