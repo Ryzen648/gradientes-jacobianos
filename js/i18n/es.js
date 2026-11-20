@@ -87,22 +87,11 @@ export default {
   "error.sinVariables": "Las funciones no dependen de ninguna variable, así que no hay nada que derivar. Usa letras como x o y.",
 
   // --- Errores: sintaxis ---
-  "error.parentesisSinCerrar": "En la función {indice} faltan paréntesis de cierre: añade {faltan} «)».",
-  "error.parentesisSobra": "En la función {indice} sobra un paréntesis de cierre «)» (posición {posicion}): no tiene uno de apertura.",
-  "error.expresionIncompleta": "La función {indice} termina de forma inesperada: falta algo después del último operador.",
-  "error.faltaValor": "En la función {indice} falta un número o una variable cerca de «{cerca}» (posición {posicion}): hay dos operadores seguidos o un paréntesis vacío.",
+  // Los textos generales están en lab-comun; estos los sustituyen porque
+  // mencionan partes de esta página (filas, ✕, el panel de sintaxis).
   "error.operadorInesperado": "En la función {indice} el símbolo «{operador}» (posición {posicion}) no va ahí. Si son dos funciones, pon cada una en su propia fila.",
-  "error.parteInesperada": "En la función {indice} no entiendo «{parte}» (posición {posicion}). Revisa si hay un punto decimal de más o un carácter extraño.",
-  "error.sintaxis": "No entiendo la función {indice}. Revisa que solo use números, variables, + - * / ^, paréntesis y funciones.",
-  "error.operadorNoAdmitido": "En la función {indice} se usa «{operador}», que no está admitido. Solo se admiten + - * / ^.",
   "error.expresionNoAdmitida": "La función {indice} no es una expresión que se pueda derivar: no uses «=», listas ni comparaciones; escribe solo la fórmula.",
   "error.funcionDesconocida": "En la función {indice} se usa «{nombre}(…)», que no es una función admitida. Abre «Orden de las variables y sintaxis» para ver la lista.",
-  "error.funcionDesconocidaSugerencia": "En la función {indice} se usa «{nombre}(…)», que no existe. ¿Quisiste decir «{sugerencia}»?",
-  "error.productoImplicito": "En la función {indice}, «{nombre}(…)» se lee como una función llamada {nombre}. Para multiplicar escribe «{nombre}*(…)».",
-  "error.funcionSinArgumento": "En la función {indice}, «{nombre}» es una función y necesita su argumento entre paréntesis, p. ej. {nombre}(x).",
-  "error.argumentosFuncion": "En la función {indice}, «{nombre}» recibe un número de argumentos incorrecto (admite como máximo {maximo}).",
-  "error.unidadImaginaria": "En la función {indice} aparece «i», que es la unidad imaginaria. Usa otra letra como variable.",
-  "error.nombreNoValido": "En la función {indice}, «{nombre}» no es un nombre de variable válido: usa letras, dígitos y guion bajo, empezando por una letra.",
 
   // --- Errores: variables y punto ---
   "error.ordenInvalido": "El orden de las variables debe nombrar exactamente estas, una vez cada una: {esperadas}.",

@@ -5,36 +5,18 @@
 // pueden traducir sin tocar la lógica y las pruebas comprueban códigos, no
 // frases. `indice` es siempre el número de la función (empezando en 1).
 //
-// La clase `ErrorCalculo` y los códigos del editor visual vienen de lab-comun
-// (`comun/js/errores.js`); aquí se declaran los propios de esta calculadora.
+// La clase `ErrorCalculo` y los códigos de la lectura de una función (sintaxis
+// y editor visual) vienen de lab-comun (`comun/js/errores.js`); aquí se
+// declaran los propios de esta calculadora.
 
-import { ErrorCalculo, CODIGOS_ENTRADA_VISUAL } from "../../comun/js/errores.js";
+import { ErrorCalculo, CODIGOS_ENTRADA_TEXTO, CODIGOS_ENTRADA_VISUAL } from "../../comun/js/errores.js";
 
 export { ErrorCalculo };
 
 const CODIGOS_PROPIOS = [
   // --- Lista de funciones ---
   "sinFunciones",              // {}
-  "funcionVacia",              // { indice }
   "sinVariables",              // {}
-
-  // --- Sintaxis de una función ---
-  "parentesisSinCerrar",       // { indice, faltan }
-  "parentesisSobra",           // { indice, posicion }
-  "expresionIncompleta",       // { indice }
-  "faltaValor",                // { indice, posicion, cerca }
-  "operadorInesperado",        // { indice, operador, posicion }
-  "parteInesperada",           // { indice, parte, posicion }
-  "sintaxis",                  // { indice }
-  "operadorNoAdmitido",        // { indice, operador }
-  "expresionNoAdmitida",       // { indice }
-  "funcionDesconocida",        // { indice, nombre }
-  "funcionDesconocidaSugerencia", // { indice, nombre, sugerencia }
-  "productoImplicito",         // { indice, nombre }
-  "funcionSinArgumento",       // { indice, nombre }
-  "argumentosFuncion",         // { indice, nombre, maximo }
-  "unidadImaginaria",          // { indice }
-  "nombreNoValido",            // { indice, nombre }
 
   // --- Variables y punto ---
   "ordenInvalido",             // { esperadas }
@@ -56,5 +38,5 @@ const CODIGOS_PROPIOS = [
   "dominioPotencia",           // { indice, expr, valor }
 ];
 
-/** Todos los códigos que puede ver esta calculadora: los propios y los del editor visual. */
-export const CODIGOS = Object.freeze([...CODIGOS_PROPIOS, ...CODIGOS_ENTRADA_VISUAL]);
+/** Todos los códigos que puede ver esta calculadora: los propios y los de la entrada compartida. */
+export const CODIGOS = Object.freeze([...CODIGOS_PROPIOS, ...CODIGOS_ENTRADA_TEXTO, ...CODIGOS_ENTRADA_VISUAL]);
