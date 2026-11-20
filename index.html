@@ -6,7 +6,10 @@
 <title>Calculadora de gradientes y jacobianos</title>
 <meta name="description" content="Calcula gradientes y jacobianos de forma simbólica y verifícalos con diferencias finitas.">
 <meta name="author" content="Ricardo Jaico Pradinett">
+<!-- Aplica el tema guardado antes del primer pintado (ver comun/js/tema.js). -->
+<script>try{var t=localStorage.getItem("tema");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="comun/css/tema.css">
 <link rel="stylesheet" href="css/estilos.css">
 <!-- `defer`: no bloquean el pintado y se ejecutan, en este orden, antes del módulo. -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
@@ -22,15 +25,18 @@
   entradilla se dejan además escritos aquí para buscadores y vistas previas.
 -->
 <main>
-  <h1 data-i18n="pagina.titulo">Calculadora de gradientes y jacobianos</h1>
+  <div class="cabecera">
+    <h1 data-i18n="pagina.titulo">Calculadora de gradientes y jacobianos</h1>
+    <button type="button" id="tema" class="boton-tema"></button>
+  </div>
   <p class="lead" data-i18n="pagina.entradilla">Deriva simbólicamente, evalúa en un punto y comprueba el resultado con diferencias finitas centradas.</p>
 
   <section class="card" aria-labelledby="tituloFunciones">
     <div class="cabecera">
       <h2 id="tituloFunciones" data-i18n="entrada.funciones"></h2>
-      <div class="modo" role="group" data-i18n-aria-label="entrada.modo">
-        <button type="button" id="modoVisual" data-i18n="entrada.modo.visual" aria-pressed="true"></button>
-        <button type="button" id="modoCodigo" data-i18n="entrada.modo.codigo" aria-pressed="false"></button>
+      <div class="modo" role="group" data-i18n-aria-label="comun.modo">
+        <button type="button" id="modoVisual" data-i18n="comun.modo.visual" aria-pressed="true"></button>
+        <button type="button" id="modoCodigo" data-i18n="comun.modo.codigo" aria-pressed="false"></button>
       </div>
     </div>
     <p class="hint" data-i18n="entrada.funciones.ayuda"></p>
@@ -46,7 +52,8 @@
     <p class="hint" data-i18n-html="entrada.punto.ayuda"></p>
     <div id="valores" class="valores" role="group" aria-labelledby="tituloPunto"></div>
 
-    <div class="row">
+    <!-- Con el teclado en pantalla abierto, esta barra se queda justo encima (comun/css/tema.css). -->
+    <div class="barra-accion">
       <button class="primary" id="calc" type="button" data-i18n="entrada.calcular"></button>
     </div>
 
