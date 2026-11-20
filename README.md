@@ -17,7 +17,10 @@ sin servidor ni paso de build.
 
 - **Editor visual o de código.** Las funciones se escriben en un editor
   matemático (MathLive, con teclado en pantalla en el móvil) o, en modo
-  *Código*, como texto: `x^2*y + sin(x*y)`.
+  *Código*, como texto: `x^2*y + sin(x*y)`. En el móvil, el botón
+  «Calcular» se queda justo encima del teclado en pantalla y, al pulsarlo,
+  el teclado se cierra y la vista baja hasta el resultado.
+- **Tema claro, oscuro o automático**, con un botón que recuerda la elección.
 - **Variables automáticas.** Se detectan al escribir y cada una recibe su
   campo de valor, que admite expresiones como `pi/4`.
 - **Una función da el gradiente; varias, el jacobiano.** Se añaden y quitan
@@ -44,6 +47,7 @@ MathLive (editor visual, con carga diferida para que la página abra rápido).
 | Ruta | Descripción |
 |---|---|
 | [`index.html`](index.html), [`css/`](css) | Página de la calculadora (GitHub Pages) |
+| [`comun/`](https://github.com/Ryzen648/lab-comun) | Submódulo [lab-comun](https://github.com/Ryzen648/lab-comun), compartido con [diffeq-lab](https://github.com/Ryzen648/diffeq-lab): editor visual, tema, conversión código ↔ LaTeX, textos comunes |
 | [`js/nucleo/`](js/nucleo) | Lógica sin DOM: lectura de la entrada, derivación, verificación numérica y LaTeX |
 | [`js/ui/`](js/ui), [`js/estado.js`](js/estado.js), [`js/i18n/`](js/i18n) | Interfaz, modelo de estado y textos |
 | [`tests/`](tests) | Pruebas de la calculadora (`node --test`) |
@@ -53,6 +57,14 @@ MathLive (editor visual, con carga diferida para que la página abra rápido).
 
 Hace falta [Node.js](https://nodejs.org) 22 o posterior. La única dependencia
 es math.js, y solo para las pruebas (la página la carga desde un CDN).
+
+Los componentes compartidos están en el submódulo `comun/`, así que hay que
+clonar con `--recurse-submodules` (o, si ya está clonado, ejecutar
+`git submodule update --init`):
+
+```bash
+git clone --recurse-submodules https://github.com/Ryzen648/gradientes-jacobianos.git
+```
 
 ```bash
 npm install
